@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "./ui/sheet";
 import { useCart } from "../context/CartContext";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +23,9 @@ export const CartSheet = () => {
           <SheetTitle className="font-heading text-3xl uppercase tracking-tight text-white">
             Your Bag
           </SheetTitle>
+          <SheetDescription className="sr-only">
+            Items currently in your shopping bag. Adjust quantities or proceed to checkout.
+          </SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
