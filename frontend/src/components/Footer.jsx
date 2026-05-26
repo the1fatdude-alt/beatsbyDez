@@ -77,7 +77,7 @@ export const Footer = () => {
             </a>
           </div>
           <p className="text-white/40 text-xs mt-8">
-            © {new Date().getFullYear()} Sony Music Entertainment. All rights reserved.
+            © {new Date().getFullYear()} BeatsByDez. All rights reserved.
           </p>
         </div>
       </div>

@@ -38,7 +38,7 @@ export default function Home() {
               className="text-[11px] md:text-xs tracking-[0.4em] uppercase font-bold text-[#dfff00] mb-4 fade-up"
               data-testid="hero-eyebrow"
             >
-              ▸ SONY MUSIC HIPHOP / THE PRODUCER
+              ▸ NEW DROP / BEATSBYDEZ
             </p>
             <h1
               className="font-heading text-7xl sm:text-8xl md:text-[9rem] uppercase tracking-tighter leading-[0.82] fade-up"
@@ -226,7 +226,7 @@ export default function Home() {
       </section>
 
       <Marquee
-        items={["DEZ", "BEATSBYDEZ", "DEZ", "SONY MUSIC"]}
+        items={["DEZ", "BEATSBYDEZ", "LUNG PUNCH", "BEATS BY DEZ"]}
         accent
       />
 

@@ -23,10 +23,10 @@ export const Navbar = () => {
         <Link
           to="/"
           data-testid="navbar-logo"
-          className="font-heading text-2xl md:text-3xl tracking-tight uppercase"
+          className="font-heading text-2xl md:text-3xl tracking-tight uppercase flex items-baseline gap-2"
         >
-          Sony Music<span className="text-[#ff3300]">.</span>
-          <span className="text-white/40 text-xs ml-2 tracking-[0.3em]">HIPHOP</span>
+          <span>BEATS BY DEZ<span className="text-[#ff3300]">.</span></span>
+          <span className="text-white/40 text-[10px] tracking-[0.3em] hidden sm:inline">THE STORE</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">

@@ -129,7 +129,7 @@ export default function ProductDetail() {
 
           <div className="mt-10 pt-6 border-t border-white/10 text-xs text-white/50 space-y-2">
             <p>▸ Free shipping on orders over $100</p>
-            <p>▸ Authentic merch direct from Sony Music</p>
+            <p>▸ Authentic merch direct from Dez</p>
             <p>▸ 30-day return policy</p>
           </div>
         </div>

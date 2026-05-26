@@ -47,7 +47,7 @@ export default function Shop() {
           Shop The Drop
         </h1>
         <p className="text-white/60 mt-4 max-w-xl">
-          Vinyl, CDs, apparel, accessories. Curated directly from Sony Music's hip-hop roster.
+          Vinyl, apparel, accessories. Straight from Dez's catalog. Every drop signed in spray paint.
         </p>
       </div>
 

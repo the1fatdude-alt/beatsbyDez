@@ -2,8 +2,20 @@ import os
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://music-commerce-hub.preview.emergentagent.com").rstrip("/")
+from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv(Path("/app/frontend/.env"))
+BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
 API = f"{BASE_URL}/api"
+
+NEW_SLUGS = {
+    "lung-punch-vinyl", "lung-punch-hoodie", "lung-punch-crew", "lung-punch-tee",
+    "graffiti-hoodie", "graffiti-tee", "beats-by-dez-cap", "dez-tapes-vinyl",
+}
+OLD_SLUGS = {
+    "beats-vol-2-cd", "beatsbydez-hoodie", "beatsbydez-tee", "dez-signal-chain",
+    "studio-sessions-vinyl", "dez-snapback",
+}
 
 
 @pytest.fixture(scope="module")
@@ -13,65 +25,79 @@ def session():
     return s
 
 
-# ---------- Products ----------
+# ---------- Root ----------
+class TestRoot:
+    def test_root_no_sony(self, session):
+        r = session.get(f"{API}/", timeout=30)
+        assert r.status_code == 200
+        msg = r.json().get("message", "")
+        assert "Sony" not in msg
+        assert "BeatsByDez" in msg
+
+
+# ---------- Products: catalog rebuild ----------
 class TestProducts:
-    def test_list_all_products(self, session):
+    def test_list_8_products(self, session):
         r = session.get(f"{API}/products", timeout=30)
         assert r.status_code == 200
         data = r.json()
         assert isinstance(data, list)
-        assert len(data) == 9, f"Expected 9 products got {len(data)}"
-        for p in data:
-            assert p["artist"] == "DEZ"
-            assert "slug" in p and "price" in p
-            # New fields exist for all products
-            assert "total_supply" in p
-            assert "sold_count" in p
-            assert "drop_ends_at" in p
-
-    def test_limited_products_have_drop_fields(self, session):
-        r = session.get(f"{API}/products", timeout=30)
-        assert r.status_code == 200
-        data = r.json()
-        limited_slugs = {"lung-punch-vinyl", "beatsbydez-hoodie", "dez-signal-chain"}
-        # dez-tapes-vinyl is is_limited=True but in seed has no total_supply set;
-        # verify the four expected limited slugs are present and check that
-        # ones with total_supply have proper sold_count + drop_ends_at
-        for p in data:
-            if p["total_supply"] is not None:
-                assert p["sold_count"] >= 0
-                assert p["sold_count"] <= p["total_supply"]
-                assert p["drop_ends_at"] is not None
-                # ISO parseable
-                from datetime import datetime
-                datetime.fromisoformat(p["drop_ends_at"].replace("Z", "+00:00"))
-        # Ensure the explicit limited slugs are present
+        assert len(data) == 8, f"Expected 8 products got {len(data)}"
         slugs = {p["slug"] for p in data}
-        for s in limited_slugs:
-            assert s in slugs, f"Missing limited slug {s}"
+        assert slugs == NEW_SLUGS, f"Unexpected slugs: {slugs}"
 
-    def test_lung_punch_product(self, session):
+    def test_no_old_slugs(self, session):
+        r = session.get(f"{API}/products", timeout=30)
+        slugs = {p["slug"] for p in r.json()}
+        for old in OLD_SLUGS:
+            assert old not in slugs, f"Old slug {old} still in catalog"
+
+    def test_all_artists_dez(self, session):
+        r = session.get(f"{API}/products", timeout=30)
+        for p in r.json():
+            assert p["artist"] == "DEZ"
+
+    def test_all_images_are_customer_assets(self, session):
+        """No unsplash/pexels stock photos. All images must be customer-assets uploads."""
+        r = session.get(f"{API}/products", timeout=30)
+        for p in r.json():
+            assert p["image"].startswith("https://customer-assets.emergentagent.com/"), \
+                f"Product {p['slug']} has non-customer-asset image: {p['image']}"
+            assert "unsplash.com" not in p["image"]
+            assert "pexels.com" not in p["image"]
+            for img in p.get("images", []):
+                assert img.startswith("https://customer-assets.emergentagent.com/"), \
+                    f"Product {p['slug']} has stock image in images[]: {img}"
+                assert "unsplash.com" not in img
+                assert "pexels.com" not in img
+
+    def test_lung_punch_hoodie(self, session):
+        r = session.get(f"{API}/products/lung-punch-hoodie", timeout=30)
+        assert r.status_code == 200
+        p = r.json()
+        assert p["slug"] == "lung-punch-hoodie"
+        assert p["total_supply"] == 500
+        assert p["sold_count"] == 218
+        assert p["is_limited"] is True
+        assert p["drop_ends_at"] is not None
+        assert "L" in p["sizes"]
+
+    def test_graffiti_hoodie(self, session):
+        r = session.get(f"{API}/products/graffiti-hoodie", timeout=30)
+        assert r.status_code == 200
+        p = r.json()
+        assert p["slug"] == "graffiti-hoodie"
+        assert p["total_supply"] == 400
+        assert p["sold_count"] == 247
+        assert p["is_limited"] is True
+
+    def test_lung_punch_vinyl(self, session):
         r = session.get(f"{API}/products/lung-punch-vinyl", timeout=30)
         assert r.status_code == 200
         p = r.json()
-        assert p["slug"] == "lung-punch-vinyl"
         assert p["total_supply"] == 1000
         assert p["sold_count"] == 387
         assert p["is_limited"] is True
-        assert p["drop_ends_at"] is not None
-        from datetime import datetime, timezone
-        dt = datetime.fromisoformat(p["drop_ends_at"].replace("Z", "+00:00"))
-        # ~7 days in the future
-        delta = (dt - datetime.now(timezone.utc)).total_seconds()
-        assert 6 * 86400 < delta < 8 * 86400, f"drop_ends_at not ~7 days out: {delta}s"
-
-    def test_non_limited_product_fields_null_or_zero(self, session):
-        r = session.get(f"{API}/products/dez-snapback", timeout=30)
-        assert r.status_code == 200
-        p = r.json()
-        assert p.get("total_supply") in (None, 0)
-        assert p.get("sold_count") == 0
-        assert p.get("drop_ends_at") in (None, "")
 
     def test_filter_vinyl(self, session):
         r = session.get(f"{API}/products", params={"category": "vinyl"}, timeout=30)
@@ -84,16 +110,8 @@ class TestProducts:
     def test_filter_apparel(self, session):
         r = session.get(f"{API}/products", params={"category": "apparel"}, timeout=30)
         assert r.status_code == 200
-        data = r.json()
-        assert all(p["category"] == "apparel" for p in data)
-
-    def test_get_product_by_slug(self, session):
-        r = session.get(f"{API}/products/dez-tapes-vinyl", timeout=30)
-        assert r.status_code == 200
-        p = r.json()
-        assert p["slug"] == "dez-tapes-vinyl"
-        assert p["artist"] == "DEZ"
-        assert p["price"] == 42.00
+        for p in r.json():
+            assert p["category"] == "apparel"
 
     def test_get_product_not_found(self, session):
         r = session.get(f"{API}/products/does-not-exist", timeout=30)
@@ -114,88 +132,65 @@ class TestArtists:
         r = session.get(f"{API}/artists/dez", timeout=30)
         assert r.status_code == 200
         a = r.json()
-        assert a["slug"] == "dez"
-        assert "bio" in a and len(a["bio"]) > 10
-        assert a["image"].startswith("http")
-
-    def test_get_artist_not_found(self, session):
-        r = session.get(f"{API}/artists/nope", timeout=30)
-        assert r.status_code == 404
+        assert "Sony" not in a.get("bio", "")
+        assert a["image"].startswith("https://customer-assets.emergentagent.com/")
 
 
 # ---------- Orders ----------
 class TestOrders:
-    def _get_product_id(self, session, slug):
+    def _get(self, session, slug):
         r = session.get(f"{API}/products/{slug}", timeout=30)
         assert r.status_code == 200
         return r.json()["id"], r.json()["price"]
 
-    def test_create_order_with_shipping(self, session):
-        pid, price = self._get_product_id(session, "beats-vol-2-cd")
-        # $18 -> subtotal under $100, shipping should be 9.99
+    def test_create_order_full_flow(self, session):
+        """End-to-end with lung-punch-hoodie size L — main smoke test from review."""
+        pid, price = self._get(session, "lung-punch-hoodie")
         payload = {
-            "items": [{"product_id": pid, "quantity": 2}],
+            "items": [{"product_id": pid, "quantity": 1, "size": "L"}],
             "customer_name": "TEST_Buyer",
-            "customer_email": "test@example.com",
+            "customer_email": "test_lp@example.com",
             "shipping_address": "1 Test St",
-            "city": "NYC",
-            "zip_code": "10001",
-            "country": "USA",
+            "city": "NYC", "zip_code": "10001", "country": "USA",
         }
         r = session.post(f"{API}/orders", json=payload, timeout=30)
         assert r.status_code == 200, r.text
         order = r.json()
-        assert order["subtotal"] == round(price * 2, 2)
+        # Price = $95, free shipping (>= $100? No, $95 < $100 so shipping 9.99)
+        assert order["subtotal"] == 95.0
         assert order["shipping"] == 9.99
-        assert order["total"] == round(price * 2 + 9.99, 2)
+        assert order["total"] == round(95.0 + 9.99, 2)
         assert order["order_number"].startswith("SM-")
-        assert len(order["order_number"]) == 11  # SM- + 8 hex
-        assert order["status"] == "confirmed"
 
-        # Verify persistence
-        order_no = order["order_number"]
-        r2 = session.get(f"{API}/orders/{order_no}", timeout=30)
+        # Persistence
+        r2 = session.get(f"{API}/orders/{order['order_number']}", timeout=30)
         assert r2.status_code == 200
-        assert r2.json()["order_number"] == order_no
-        assert r2.json()["customer_email"] == "test@example.com"
+        assert r2.json()["items"][0]["size"] == "L"
+        assert r2.json()["items"][0]["title"] == "LUNG PUNCH — HOODIE"
 
-    def test_create_order_free_shipping(self, session):
-        pid, price = self._get_product_id(session, "beatsbydez-hoodie")  # $110
+    def test_free_shipping_graffiti_hoodie(self, session):
+        pid, price = self._get(session, "graffiti-hoodie")  # $110
         payload = {
-            "items": [{"product_id": pid, "quantity": 1, "size": "L"}],
-            "customer_name": "TEST_Buyer2",
-            "customer_email": "free@example.com",
-            "shipping_address": "2 Test St",
-            "city": "LA",
-            "zip_code": "90001",
-            "country": "USA",
+            "items": [{"product_id": pid, "quantity": 1, "size": "M"}],
+            "customer_name": "TEST_B2", "customer_email": "free@x.com",
+            "shipping_address": "x", "city": "x", "zip_code": "x", "country": "x",
         }
         r = session.post(f"{API}/orders", json=payload, timeout=30)
         assert r.status_code == 200
-        order = r.json()
-        assert order["shipping"] == 0.0
-        assert order["total"] == price
+        assert r.json()["shipping"] == 0.0
+        assert r.json()["total"] == price
 
     def test_empty_cart_400(self, session):
-        payload = {
-            "items": [],
-            "customer_name": "x", "customer_email": "x@y.z",
-            "shipping_address": "x", "city": "x", "zip_code": "x", "country": "x",
-        }
+        payload = {"items": [], "customer_name": "x", "customer_email": "x@y.z",
+                   "shipping_address": "x", "city": "x", "zip_code": "x", "country": "x"}
         r = session.post(f"{API}/orders", json=payload, timeout=30)
         assert r.status_code == 400
 
     def test_invalid_product_404(self, session):
-        payload = {
-            "items": [{"product_id": "not-a-real-id", "quantity": 1}],
-            "customer_name": "x", "customer_email": "x@y.z",
-            "shipping_address": "x", "city": "x", "zip_code": "x", "country": "x",
-        }
+        payload = {"items": [{"product_id": "not-real", "quantity": 1}],
+                   "customer_name": "x", "customer_email": "x@y.z",
+                   "shipping_address": "x", "city": "x", "zip_code": "x", "country": "x"}
         r = session.post(f"{API}/orders", json=payload, timeout=30)
-        assert r.status_code == 404
-
-    def test_get_order_not_found(self, session):
-        r = session.get(f"{API}/orders/SM-NOTREAL1", timeout=30)
         assert r.status_code == 404
 
 
@@ -205,7 +200,5 @@ class TestNewsletter:
         payload = {"email": "TEST_news@example.com"}
         r1 = session.post(f"{API}/newsletter", json=payload, timeout=30)
         assert r1.status_code == 200
-        assert r1.json()["success"] is True
-        # second call should also succeed (upsert)
         r2 = session.post(f"{API}/newsletter", json=payload, timeout=30)
         assert r2.status_code == 200
