@@ -1,51 +1,49 @@
-import { useEffect } from "react";
-import "@/App.css";
+import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+import { Toaster } from "sonner";
+import { CartProvider } from "./context/CartContext";
+import { Navbar } from "./components/Navbar";
+import { Footer } from "./components/Footer";
+import { CartSheet } from "./components/CartSheet";
+import Home from "./pages/Home";
+import Shop from "./pages/Shop";
+import ProductDetail from "./pages/ProductDetail";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
+import ArtistDetail from "./pages/ArtistDetail";
 
 function App() {
   return (
-    <div className="App">
+    <div className="App grain min-h-screen bg-[#050505] text-white">
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
+        <CartProvider>
+          <Navbar />
+          <CartSheet />
+          <main className="relative z-[2]">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/product/:slug" element={<ProductDetail />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order/:orderNumber" element={<OrderSuccess />} />
+              <Route path="/artists" element={<ArtistDetail />} />
+              <Route path="/artists/:slug" element={<ArtistDetail />} />
+            </Routes>
+          </main>
+          <Footer />
+          <Toaster
+            theme="dark"
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: "#0a0a0a",
+                border: "1px solid #27272a",
+                color: "#ffffff",
+                borderRadius: 0,
+              },
+            }}
+          />
+        </CartProvider>
       </BrowserRouter>
     </div>
   );
