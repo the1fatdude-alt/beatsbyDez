@@ -135,6 +135,9 @@ SEED_PRODUCTS = [
         "is_limited": True,
         "is_new_drop": True,
         "stock": 240,
+        "total_supply": 2500,
+        "sold_count": 1843,
+        "drop_ends_at": _drop_ends(14),
     },
     {
         "slug": "beats-vol-2-cd",
