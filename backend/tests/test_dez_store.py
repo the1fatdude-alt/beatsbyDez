@@ -20,10 +20,58 @@ class TestProducts:
         assert r.status_code == 200
         data = r.json()
         assert isinstance(data, list)
-        assert len(data) == 8, f"Expected 8 products got {len(data)}"
+        assert len(data) == 9, f"Expected 9 products got {len(data)}"
         for p in data:
             assert p["artist"] == "DEZ"
             assert "slug" in p and "price" in p
+            # New fields exist for all products
+            assert "total_supply" in p
+            assert "sold_count" in p
+            assert "drop_ends_at" in p
+
+    def test_limited_products_have_drop_fields(self, session):
+        r = session.get(f"{API}/products", timeout=30)
+        assert r.status_code == 200
+        data = r.json()
+        limited_slugs = {"lung-punch-vinyl", "beatsbydez-hoodie", "dez-signal-chain"}
+        # dez-tapes-vinyl is is_limited=True but in seed has no total_supply set;
+        # verify the four expected limited slugs are present and check that
+        # ones with total_supply have proper sold_count + drop_ends_at
+        for p in data:
+            if p["total_supply"] is not None:
+                assert p["sold_count"] >= 0
+                assert p["sold_count"] <= p["total_supply"]
+                assert p["drop_ends_at"] is not None
+                # ISO parseable
+                from datetime import datetime
+                datetime.fromisoformat(p["drop_ends_at"].replace("Z", "+00:00"))
+        # Ensure the explicit limited slugs are present
+        slugs = {p["slug"] for p in data}
+        for s in limited_slugs:
+            assert s in slugs, f"Missing limited slug {s}"
+
+    def test_lung_punch_product(self, session):
+        r = session.get(f"{API}/products/lung-punch-vinyl", timeout=30)
+        assert r.status_code == 200
+        p = r.json()
+        assert p["slug"] == "lung-punch-vinyl"
+        assert p["total_supply"] == 1000
+        assert p["sold_count"] == 387
+        assert p["is_limited"] is True
+        assert p["drop_ends_at"] is not None
+        from datetime import datetime, timezone
+        dt = datetime.fromisoformat(p["drop_ends_at"].replace("Z", "+00:00"))
+        # ~7 days in the future
+        delta = (dt - datetime.now(timezone.utc)).total_seconds()
+        assert 6 * 86400 < delta < 8 * 86400, f"drop_ends_at not ~7 days out: {delta}s"
+
+    def test_non_limited_product_fields_null_or_zero(self, session):
+        r = session.get(f"{API}/products/dez-snapback", timeout=30)
+        assert r.status_code == 200
+        p = r.json()
+        assert p.get("total_supply") in (None, 0)
+        assert p.get("sold_count") == 0
+        assert p.get("drop_ends_at") in (None, "")
 
     def test_filter_vinyl(self, session):
         r = session.get(f"{API}/products", params={"category": "vinyl"}, timeout=30)

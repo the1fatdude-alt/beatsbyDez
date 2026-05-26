@@ -3,6 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { fetchArtist, fetchProducts } from "../lib/api";
 import { ProductCard } from "../components/ProductCard";
 
+const DEZ_PORTRAIT =
+  "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/5btnld6i_Snapchat-1994296522.jpg";
+const DEZ_STUDIO =
+  "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg";
+
 export default function ArtistDetail() {
   const params = useParams();
   const slug = params.slug || "dez";
@@ -59,6 +64,33 @@ export default function ArtistDetail() {
               alt={artist.name}
               className="w-full max-w-[560px] object-contain drop-shadow-[0_0_80px_rgba(223,255,0,0.2)]"
             />
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 md:px-8 lg:px-12 py-16 border-b border-white/10">
+        <div className="grid lg:grid-cols-2 gap-0 border-l border-t border-white/10">
+          <div className="relative aspect-[4/5] lg:aspect-square border-r border-b border-white/10 -m-px overflow-hidden">
+            <img
+              src={DEZ_PORTRAIT}
+              alt="Dez portrait"
+              data-testid="artist-portrait"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute bottom-4 left-4 text-[10px] tracking-[0.25em] uppercase font-bold text-white bg-black/60 px-2 py-1">
+              / The Man
+            </div>
+          </div>
+          <div className="relative aspect-[4/5] lg:aspect-square border-r border-b border-white/10 -m-px overflow-hidden">
+            <img
+              src={DEZ_STUDIO}
+              alt="Dez's studio"
+              data-testid="artist-studio"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute bottom-4 left-4 text-[10px] tracking-[0.25em] uppercase font-bold text-white bg-black/60 px-2 py-1">
+              / The Lab
+            </div>
           </div>
         </div>
       </section>

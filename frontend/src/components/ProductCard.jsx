@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { HypeBar } from "./HypeBar";
 
 export const ProductCard = ({ product }) => {
   return (
@@ -37,6 +38,7 @@ export const ProductCard = ({ product }) => {
           ${product.price.toFixed(0)}
         </p>
       </div>
+      <HypeBar product={product} variant="card" />
     </Link>
   );
 };

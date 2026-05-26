@@ -8,7 +8,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 
 ROOT_DIR = Path(__file__).parent
@@ -22,6 +22,9 @@ app = FastAPI(title="Sony Music HipHop Store - BeatsByDez")
 api_router = APIRouter(prefix="/api")
 
 DEZ_LOGO = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/ixiugo5j_Gemini_Generated_Image_.png"
+DEZ_PORTRAIT = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/5btnld6i_Snapchat-1994296522.jpg"
+DEZ_STUDIO = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg"
+LUNG_PUNCH = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/t4dqvb7t_Gemini_Generated_Image_%20%281%29-EDIT.jpg"
 
 
 # ---------- Models ----------
@@ -39,6 +42,9 @@ class Product(BaseModel):
     is_limited: bool = False
     is_new_drop: bool = False
     stock: int = 100
+    total_supply: Optional[int] = None
+    sold_count: int = 0
+    drop_ends_at: Optional[str] = None
 
 
 class Artist(BaseModel):
@@ -87,6 +93,10 @@ class NewsletterSignup(BaseModel):
 
 
 # ---------- Seed Data (DEZ ONLY) ----------
+def _drop_ends(days: int) -> str:
+    return (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+
+
 SEED_ARTISTS = [
     {
         "slug": "dez",
@@ -97,6 +107,22 @@ SEED_ARTISTS = [
 ]
 
 SEED_PRODUCTS = [
+    {
+        "slug": "lung-punch-vinyl",
+        "title": "LUNG PUNCH — VINYL LP",
+        "artist": "DEZ",
+        "category": "vinyl",
+        "price": 45.00,
+        "image": LUNG_PUNCH,
+        "images": [LUNG_PUNCH],
+        "description": "The new project. Lung Punch — twelve tracks of pure smoke and bass. Limited red-and-black splatter vinyl. Numbered jacket, exclusive zine, instrumental download code. Signed by Dez.",
+        "is_limited": True,
+        "is_new_drop": True,
+        "stock": 613,
+        "total_supply": 1000,
+        "sold_count": 387,
+        "drop_ends_at": _drop_ends(7),
+    },
     {
         "slug": "dez-tapes-vinyl",
         "title": "DEZ TAPES — VOL. 01 VINYL",
@@ -135,6 +161,9 @@ SEED_PRODUCTS = [
         "is_new_drop": True,
         "is_limited": True,
         "stock": 320,
+        "total_supply": 500,
+        "sold_count": 312,
+        "drop_ends_at": _drop_ends(10),
     },
     {
         "slug": "beatsbydez-tee",
@@ -160,6 +189,9 @@ SEED_PRODUCTS = [
         "description": "Stainless steel cuban link, 22 inches. Hand-finished signal-red enamel D pendant. Anti-tarnish coating. Numbered edition of 250.",
         "is_limited": True,
         "stock": 95,
+        "total_supply": 250,
+        "sold_count": 189,
+        "drop_ends_at": _drop_ends(5),
     },
     {
         "slug": "studio-sessions-vinyl",

@@ -4,6 +4,7 @@ import { fetchProduct } from "../lib/api";
 import { useCart } from "../context/CartContext";
 import { ArrowLeft, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
+import { HypeBar } from "../components/HypeBar";
 
 export default function ProductDetail() {
   const { slug } = useParams();
