@@ -1,0 +1,92 @@
+{
+  "theme": "dark",
+  "archetype": "Archetype 4 (Swiss & High-Contrast) - Modified for High-End Brutalist Streetwear",
+  "colors": {
+    "background": "#050505",
+    "surface": "#111111",
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1AA",
+      "inverse": "#000000"
+    },
+    "accent": {
+      "primary": "#FF3300",
+      "secondary": "#DFFF00"
+    },
+    "border": "#27272A"
+  },
+  "typography": {
+    "heading": "Bebas Neue",
+    "body": "Outfit",
+    "hierarchy": {
+      "h1": "text-5xl sm:text-6xl md:text-8xl font-heading tracking-tighter uppercase leading-none",
+      "h2": "text-3xl sm:text-4xl md:text-5xl font-heading tracking-tight uppercase leading-none",
+      "h3": "text-xl sm:text-2xl font-heading tracking-normal uppercase",
+      "body": "text-base font-body text-secondary",
+      "label": "text-xs font-body tracking-[0.2em] uppercase font-bold text-primary"
+    }
+  },
+  "spacing_and_layout": {
+    "grid": "Bento Grid with aggressive asymmetry. Use the 'Grid Borders' pattern.",
+    "container_padding": "p-4 md:p-8 lg:p-12",
+    "surface_treatment": "Pure sharp edges, completely cardless or raw bordered divs (rounded-none).",
+    "alignment": "Optical alignment, heavily favoring left-alignment for text, allowing images to span full bleed."
+  },
+  "components": {
+    "hero": "Full-bleed background image with heavy black overlay (bg-black/50) or gradient. Use oversized 'Bebas Neue' text layered over the image.",
+    "product_card": "Raw div, no rounded corners. 1px solid border (border-white/10). Aspect square image wrapper. Hover: image scales slightly, border turns to accent color (#FF3300).",
+    "buttons": "Brutalist block buttons. Default: bg-white text-black hover:bg-[#FF3300] hover:text-white transition-all. Sharp corners (rounded-none).",
+    "marquee": "Endless scrolling outline text (text-transparent stroke-white stroke-1 or similar CSS text-stroke effect) for 'NEW DROPS • LIMITED EDITION'.",
+    "navigation": "Sticky, glassmorphism (backdrop-blur-xl bg-black/60) with 1px bottom border (border-white/10). Simple links.",
+    "shopping_cart_drawer": "Shadcn Sheet component customized with dark theme, sharp corners, and high-contrast checkout button."
+  },
+  "media": {
+    "hero_backgrounds": [
+      {
+        "url": "https://images.unsplash.com/photo-1547661198-888c249734e7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwzfHxoaXAlMjBob3AlMjBhcnRpc3QlMjBsaXZlJTIwcGVyZm9ybWFuY2V8ZW58MHx8fHwxNzc5NzY1NzU0fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Hip hop artist performing on stage, dark moody lighting",
+        "category": "hero_primary"
+      },
+      {
+        "url": "https://images.pexels.com/photos/2091383/pexels-photo-2091383.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Dynamic live performance featuring a rapper",
+        "category": "hero_secondary"
+      }
+    ],
+    "products": [
+      {
+        "url": "https://images.unsplash.com/photo-1619983081563-430f63602796?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwxfHx2aW55bCUyMHJlY29yZCUyMGhpcCUyMGhvcHxlbnwwfHx8fDE3Nzk3NjU3NTR8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Purple vinyl record",
+        "category": "product_vinyl"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1619983081636-a91694656575?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHw0fHx2aW55bCUyMHJlY29yZCUyMGhpcCUyMGhvcHxlbnwwfHx8fDE3Nzk3NjU3NTR8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Yellow limited edition CD",
+        "category": "product_cd"
+      },
+      {
+        "url": "https://images.pexels.com/photos/14241847/pexels-photo-14241847.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Black hoodie streetwear model",
+        "category": "product_apparel"
+      },
+      {
+        "url": "https://images.pexels.com/photos/15360024/pexels-photo-15360024.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Fashionable man in black hoodie with sunglasses",
+        "category": "product_apparel_2"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1765153417747-73d012027e36?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHw0fHxzdHJlZXR3ZWFyJTIwYWNjZXNzb3JpZXMlMjBzdW5nbGFzc2VzJTIwY2hhaW58ZW58MHx8fHwxNzc5NzY1NzczfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Streetwear accessories and chain",
+        "category": "product_accessories"
+      }
+    ],
+    "editorial": [
+      {
+        "url": "https://images.unsplash.com/photo-1507553532144-b9df5e38c8d1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NDh8MHwxfHNlYXJjaHwyfHxzdHJlZXR3ZWFyJTIwZmFzaGlvbiUyMG1vZGVsfGVufDB8fHx8MTc3OTc2NTc3Mnww&ixlib=rb-4.1.0&q=85",
+        "description": "Streetwear fashion editorial shot",
+        "category": "editorial_block"
+      }
+    ]
+  },
+  "instructions_to_main_agent": "Build a dark, high-contrast, brutalist streetwear e-commerce site for Sony Music. Do NOT use standard Shadcn cards for products; build raw div layouts with sharp borders (rounded-none). Use Bebas Neue for massive, impactful typography (hero headings, section titles) and Outfit for body copy. Rely heavily on uppercase tracking-[0.2em] for small labels. Accent color is #FF3300 (Signal Red). Implement a marquee ticker for 'NEW DROPS'. All interactive elements MUST include data-testid. Use the provided images from the 'media' object for the hero and product catalog. Ensure the design feels gritty, editorial, and culture-driven. Do NOT use any 'placeholder' text for logos or images."
+}
