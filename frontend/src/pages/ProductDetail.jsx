@@ -72,6 +72,12 @@ export default function ProductDetail() {
             ${product.price.toFixed(2)}
           </p>
 
+          {product.is_limited && product.total_supply && (
+            <div className="mt-8">
+              <HypeBar product={product} />
+            </div>
+          )}
+
           <p className="text-white/70 leading-relaxed mt-8">{product.description}</p>
 
           {product.sizes?.length > 0 && (
