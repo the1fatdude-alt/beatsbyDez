@@ -306,7 +306,7 @@ async def create_order(payload: OrderCreate):
 
     shipping = 0.0 if subtotal >= 100 else 9.99
     total = round(subtotal + shipping, 2)
-    order_number = "SM-" + str(uuid.uuid4())[:8].upper()
+    order_number = "BBD-" + str(uuid.uuid4())[:8].upper()
 
     order = Order(
         order_number=order_number,
