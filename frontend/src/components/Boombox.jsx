@@ -49,10 +49,10 @@ const HotBtn = ({ onClick, active, label, testid, children, style, glow = "#ff33
     data-testid={testid}
     aria-label={label}
     style={style}
-    className={`absolute flex items-center justify-center rounded-full border-2 backdrop-blur-sm transition-all ${
+    className={`absolute flex items-center justify-center rounded-full border backdrop-blur-[2px] transition-all ${
       active
-        ? "border-[var(--g)] bg-[var(--g)]/30 scale-105"
-        : "border-white/40 bg-black/40 hover:border-[var(--g)] hover:bg-[var(--g)]/20 hover:scale-105"
+        ? "border-[var(--g)] bg-[var(--g)]/30 scale-105 opacity-100"
+        : "border-white/15 bg-black/10 opacity-60 hover:border-[var(--g)] hover:bg-[var(--g)]/20 hover:opacity-100 hover:scale-105"
     }`}
     {...{ "data-glow": glow }}
   >
@@ -254,12 +254,12 @@ export const Boombox = () => {
           <div
             data-testid="deck-a"
             className="absolute flex items-center justify-around"
-            style={{ top: "47%", left: "28%", width: "15%", height: "5.5%" }}
+            style={{ top: "45.5%", left: "26%", width: "19%", height: "8.5%" }}
           >
-            <div style={{ width: "32%", height: "100%" }}>
+            <div style={{ width: "44%", height: "100%" }}>
               <CassetteReel spinning={powered && isPlaying} color="#ff3300" />
             </div>
-            <div style={{ width: "32%", height: "100%" }}>
+            <div style={{ width: "44%", height: "100%" }}>
               <CassetteReel spinning={powered && isPlaying} color="#ff3300" />
             </div>
           </div>
@@ -268,12 +268,12 @@ export const Boombox = () => {
           <div
             data-testid="deck-b"
             className="absolute flex items-center justify-around"
-            style={{ top: "47%", left: "58%", width: "15%", height: "5.5%" }}
+            style={{ top: "45.5%", left: "56%", width: "19%", height: "8.5%" }}
           >
-            <div style={{ width: "32%", height: "100%" }}>
+            <div style={{ width: "44%", height: "100%" }}>
               <CassetteReel spinning={powered && isRecording} color="#dfff00" />
             </div>
-            <div style={{ width: "32%", height: "100%" }}>
+            <div style={{ width: "44%", height: "100%" }}>
               <CassetteReel spinning={powered && isRecording} color="#dfff00" />
             </div>
           </div>
@@ -282,7 +282,7 @@ export const Boombox = () => {
           {isRecording && (
             <div
               className="absolute flex items-center gap-1 bg-black/85 px-1.5 py-0.5 border border-[#ff3300]"
-              style={{ top: "44.5%", left: "58%" }}
+              style={{ top: "43%", left: "56%" }}
               data-testid="rec-led"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#ff3300] animate-pulse" />
@@ -294,7 +294,7 @@ export const Boombox = () => {
           {isRecording && (
             <div
               className="absolute pointer-events-none"
-              style={{ top: "49.5%", left: "43%", width: "15%", height: "1.2%" }}
+              style={{ top: "49.5%", left: "44%", width: "13%", height: "1.4%" }}
             >
               <div className="w-full h-full bg-gradient-to-r from-[#ff3300] via-[#dfff00] to-[#dfff00] opacity-80 animate-pulse" />
             </div>
