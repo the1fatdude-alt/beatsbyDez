@@ -94,6 +94,26 @@ class NewsletterSignup(BaseModel):
     email: str
 
 
+class Instrumental(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    slug: str
+    title: str
+    mood: str
+    bpm: int
+    key: str
+    audio_url: str
+    cover: str
+    is_free: bool = False
+    price: float = 0.0
+    preview_seconds: int = 30
+    downloads: int = 0
+
+
+class DownloadResponse(BaseModel):
+    audio_url: str
+    downloads: int
+
+
 # ---------- Seed Data (DEZ ONLY) ----------
 def _drop_ends(days: int) -> str:
     return (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
@@ -228,17 +248,108 @@ SEED_PRODUCTS = [
 ]
 
 
+SEED_INSTRUMENTALS = [
+    # FOR-SALE — 30s previews
+    {
+        "slug": "obsidian-bounce",
+        "title": "OBSIDIAN BOUNCE",
+        "mood": "TRAP",
+        "bpm": 142,
+        "key": "F# Minor",
+        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg",
+        "is_free": False,
+        "price": 34.99,
+        "preview_seconds": 30,
+    },
+    {
+        "slug": "lung-punch-instrumental",
+        "title": "LUNG PUNCH (INSTR)",
+        "mood": "BOOM BAP",
+        "bpm": 92,
+        "key": "C Minor",
+        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/t4dqvb7t_Gemini_Generated_Image_%20%281%29-EDIT.jpg",
+        "is_free": False,
+        "price": 49.99,
+        "preview_seconds": 30,
+    },
+    {
+        "slug": "midnight-808s",
+        "title": "MIDNIGHT 808s",
+        "mood": "DRILL",
+        "bpm": 148,
+        "key": "G Minor",
+        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg",
+        "is_free": False,
+        "price": 29.99,
+        "preview_seconds": 30,
+    },
+    {
+        "slug": "spraycan-soul",
+        "title": "SPRAYCAN SOUL",
+        "mood": "LO-FI",
+        "bpm": 78,
+        "key": "A Minor",
+        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/t4dqvb7t_Gemini_Generated_Image_%20%281%29-EDIT.jpg",
+        "is_free": False,
+        "price": 24.99,
+        "preview_seconds": 30,
+    },
+    # FREE — 3 free downloads
+    {
+        "slug": "free-starter-01",
+        "title": "STARTER PACK 01",
+        "mood": "TRAP / FREE",
+        "bpm": 140,
+        "key": "D Minor",
+        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg",
+        "is_free": True,
+        "price": 0.0,
+    },
+    {
+        "slug": "free-starter-02",
+        "title": "STARTER PACK 02",
+        "mood": "BOOM BAP / FREE",
+        "bpm": 88,
+        "key": "F Minor",
+        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg",
+        "is_free": True,
+        "price": 0.0,
+    },
+    {
+        "slug": "free-wall-bounce",
+        "title": "WALL BOUNCE FREEBIE",
+        "mood": "LO-FI / FREE",
+        "bpm": 82,
+        "key": "E Minor",
+        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg",
+        "is_free": True,
+        "price": 0.0,
+    },
+]
+
+
 @app.on_event("startup")
 async def seed_database():
     # Force-refresh seed (single-artist site rebrand)
     await db.products.delete_many({})
     await db.artists.delete_many({})
+    await db.instrumentals.delete_many({})
     for a in SEED_ARTISTS:
         artist = Artist(**a)
         await db.artists.insert_one(artist.model_dump())
     for p in SEED_PRODUCTS:
         product = Product(**p)
         await db.products.insert_one(product.model_dump())
+    for inst in SEED_INSTRUMENTALS:
+        instrumental = Instrumental(**inst)
+        await db.instrumentals.insert_one(instrumental.model_dump())
 
 
 # ---------- Routes ----------
@@ -341,6 +452,26 @@ async def newsletter_signup(payload: NewsletterSignup):
         upsert=True,
     )
     return {"success": True, "message": "Subscribed"}
+
+
+@api_router.get("/instrumentals", response_model=List[Instrumental])
+async def list_instrumentals(free_only: bool = False):
+    query = {"is_free": True} if free_only else {}
+    docs = await db.instrumentals.find(query, {"_id": 0}).to_list(200)
+    return [Instrumental(**d) for d in docs]
+
+
+@api_router.post("/instrumentals/{slug}/download", response_model=DownloadResponse)
+async def download_instrumental(slug: str):
+    doc = await db.instrumentals.find_one({"slug": slug}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Instrumental not found")
+    if not doc.get("is_free"):
+        raise HTTPException(status_code=403, detail="This beat is for sale, not free download")
+    await db.instrumentals.update_one(
+        {"slug": slug}, {"$inc": {"downloads": 1}}
+    )
+    return DownloadResponse(audio_url=doc["audio_url"], downloads=doc.get("downloads", 0) + 1)
 
 
 app.include_router(api_router)

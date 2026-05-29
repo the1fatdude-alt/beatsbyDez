@@ -5,9 +5,10 @@ import { fetchProducts } from "../lib/api";
 import { ProductCard } from "../components/ProductCard";
 import { Marquee } from "../components/Marquee";
 import { Countdown } from "../components/Countdown";
+import { Boombox } from "../components/Boombox";
 
 const DEZ_LOGO =
-  "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/ixiugo5j_Gemini_Generated_Image_.png";
+  "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg";
 const DEZ_STUDIO =
   "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg";
 
@@ -77,12 +78,12 @@ export default function Home() {
           </div>
 
           <div className="order-1 lg:order-2 relative">
-            <div className="relative aspect-square max-w-[640px] mx-auto">
+            <div className="relative aspect-square max-w-[640px] mx-auto rounded-[40px] overflow-hidden border border-white/10">
               <img
                 src={DEZ_LOGO}
                 alt="BeatsByDez graffiti"
                 data-testid="hero-dez-artwork"
-                className="w-full h-full object-contain drop-shadow-[0_0_60px_rgba(223,255,0,0.25)]"
+                className="w-full h-full object-cover drop-shadow-[0_0_60px_rgba(223,255,0,0.25)]"
               />
             </div>
           </div>
@@ -92,6 +93,9 @@ export default function Home() {
       <Marquee
         items={["BEATSBYDEZ", "NEW DROPS", "LIMITED EDITION", "WORLDWIDE SHIPPING"]}
       />
+
+      {/* THE BOOMBOX */}
+      <Boombox />
 
       {/* LUNG PUNCH — featured drop with countdown */}
       {lungPunch && (
@@ -171,11 +175,13 @@ export default function Home() {
       <section className="relative bg-[#0a0a0a] border-y border-white/10">
         <div className="grid lg:grid-cols-2 items-stretch">
           <div className="relative aspect-[4/3] lg:aspect-auto bg-black flex items-center justify-center p-10">
-            <img
-              src={DEZ_LOGO}
-              alt="BeatsByDez"
-              className="w-full max-w-[480px] object-contain"
-            />
+            <div className="w-full max-w-[480px] aspect-square rounded-[32px] overflow-hidden border border-white/10">
+              <img
+                src={DEZ_LOGO}
+                alt="BeatsByDez"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
           <div className="p-8 md:p-16 flex flex-col justify-center">
             <p className="text-xs tracking-[0.3em] uppercase text-[#dfff00] font-bold">/ THE PRODUCER</p>

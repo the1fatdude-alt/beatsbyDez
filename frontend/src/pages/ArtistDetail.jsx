@@ -59,11 +59,13 @@ export default function ArtistDetail() {
             </div>
           </div>
           <div className="relative flex items-center justify-center">
-            <img
-              src={artist.image}
-              alt={artist.name}
-              className="w-full max-w-[560px] object-contain drop-shadow-[0_0_80px_rgba(223,255,0,0.2)]"
-            />
+            <div className="w-full max-w-[560px] aspect-square rounded-[40px] overflow-hidden border border-white/10">
+              <img
+                src={artist.image}
+                alt={artist.name}
+                className="w-full h-full object-cover drop-shadow-[0_0_80px_rgba(223,255,0,0.2)]"
+              />
+            </div>
           </div>
         </div>
       </section>
