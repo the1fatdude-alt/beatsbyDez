@@ -45,14 +45,14 @@ class TestInstrumentalsList:
         data = session.get(f"{API}/instrumentals").json()
         paid = [t for t in data if t["slug"] in PAID_SLUGS]
         for t in paid:
-            assert t["is_free"] is False, f"{t['slug']} should not be free"
+            assert not t["is_free"], f"{t['slug']} should not be free"
             assert t["price"] > 0, f"{t['slug']} should have price>0"
 
     def test_free_are_free_with_price_zero(self, session):
         data = session.get(f"{API}/instrumentals").json()
         free = [t for t in data if t["slug"] in FREE_SLUGS]
         for t in free:
-            assert t["is_free"] is True, f"{t['slug']} should be free"
+            assert t["is_free"], f"{t['slug']} should be free"
             assert t["price"] == 0.0, f"{t['slug']} should have price 0"
 
     def test_free_only_filter_returns_3(self, session):
@@ -62,7 +62,7 @@ class TestInstrumentalsList:
         assert len(data) == 3
         assert {t["slug"] for t in data} == FREE_SLUGS
         for t in data:
-            assert t["is_free"] is True
+            assert t["is_free"]
 
     def test_required_fields(self, session):
         data = session.get(f"{API}/instrumentals").json()

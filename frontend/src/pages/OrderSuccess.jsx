@@ -48,8 +48,8 @@ export default function OrderSuccess() {
         <div className="mt-8">
           <p className="text-xs tracking-[0.2em] uppercase font-bold text-white/60 mb-4">Items</p>
           <ul className="space-y-3">
-            {order.items.map((it, i) => (
-              <li key={i} className="flex gap-4 border-b border-white/10 pb-3">
+            {order.items.map((it) => (
+              <li key={`${it.product_id}-${it.size || "default"}`} className="flex gap-4 border-b border-white/10 pb-3">
                 <img src={it.image} alt={it.title} className="w-16 h-16 object-cover" />
                 <div className="flex-1">
                   <p className="font-heading uppercase tracking-tight">{it.title}</p>

@@ -78,7 +78,7 @@ class TestProducts:
         assert p["slug"] == "lung-punch-hoodie"
         assert p["total_supply"] == 500
         assert p["sold_count"] == 218
-        assert p["is_limited"] is True
+        assert p["is_limited"]
         assert p["drop_ends_at"] is not None
         assert "L" in p["sizes"]
 
@@ -89,7 +89,7 @@ class TestProducts:
         assert p["slug"] == "graffiti-hoodie"
         assert p["total_supply"] == 400
         assert p["sold_count"] == 247
-        assert p["is_limited"] is True
+        assert p["is_limited"]
 
     def test_lung_punch_vinyl(self, session):
         r = session.get(f"{API}/products/lung-punch-vinyl", timeout=30)
@@ -97,7 +97,7 @@ class TestProducts:
         p = r.json()
         assert p["total_supply"] == 1000
         assert p["sold_count"] == 387
-        assert p["is_limited"] is True
+        assert p["is_limited"]
 
     def test_filter_vinyl(self, session):
         r = session.get(f"{API}/products", params={"category": "vinyl"}, timeout=30)
@@ -160,7 +160,7 @@ class TestOrders:
         assert order["subtotal"] == 95.0
         assert order["shipping"] == 9.99
         assert order["total"] == round(95.0 + 9.99, 2)
-        assert order["order_number"].startswith("SM-")
+        assert order["order_number"].startswith("BBD-")
 
         # Persistence
         r2 = session.get(f"{API}/orders/{order['order_number']}", timeout=30)
