@@ -4,6 +4,8 @@ import axios from "axios";
 import { toast } from "sonner";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const BOOMBOX_IMG =
+  "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/qdcx3gp4_969a6a9b-e488-43de-b364-591b5b7f73c5.jpeg";
 
 const fmt = (s) => {
   if (!isFinite(s)) return "00:00";
@@ -12,48 +14,51 @@ const fmt = (s) => {
   return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 };
 
-const Reel = ({ spinning, color = "#ff3300" }) => (
-  <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#0a0a0a] border border-white/20 flex items-center justify-center overflow-hidden">
-    <div
-      className={`w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-dashed flex items-center justify-center ${
-        spinning ? "animate-[spin_1.6s_linear_infinite]" : ""
-      }`}
-      style={{ borderColor: color }}
-    >
-      <div className="w-2 h-2 rounded-full bg-white/40" />
-    </div>
-  </div>
-);
-
-const EQBars = ({ active }) => (
-  <div className="flex items-end gap-[3px] h-10">
-    {Array.from({ length: 14 }).map((_, i) => (
+// 6-spoke cassette reel (not a CD platter)
+const CassetteReel = ({ spinning, color }) => (
+  <div
+    className={`relative w-full h-full rounded-full ${spinning ? "animate-[spin_1.6s_linear_infinite]" : ""}`}
+    style={{ transformOrigin: "center" }}
+  >
+    {[0, 60, 120, 180, 240, 300].map((deg) => (
       <div
-        key={i}
-        className="w-1.5 bg-[#dfff00] origin-bottom"
+        key={deg}
+        className="absolute top-1/2 left-1/2 origin-center"
         style={{
-          height: active ? `${20 + Math.random() * 80}%` : "8%",
-          transition: "height 120ms ease-out",
-          animation: active ? `bbpulse${(i % 4) + 1} ${0.4 + (i % 5) * 0.1}s ease-in-out infinite alternate` : "none",
+          width: "12%",
+          height: "70%",
+          backgroundColor: color,
+          opacity: 0.85,
+          transform: `translate(-50%, -50%) rotate(${deg}deg)`,
+          clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
         }}
       />
     ))}
+    <div
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+      style={{ width: "22%", height: "22%", backgroundColor: color, boxShadow: `0 0 8px ${color}` }}
+    />
   </div>
 );
 
-const TransportBtn = ({ onClick, active, children, label, testid }) => (
+// Hotspot button overlaid on the boombox photo
+const HotBtn = ({ onClick, active, label, testid, children, style, glow = "#ff3300" }) => (
   <button
     type="button"
     onClick={onClick}
     data-testid={testid}
     aria-label={label}
-    className={`relative h-12 w-12 md:h-14 md:w-14 flex items-center justify-center border-2 ${
+    style={style}
+    className={`absolute flex items-center justify-center rounded-full border-2 backdrop-blur-sm transition-all ${
       active
-        ? "bg-[#ff3300] border-[#ff3300] text-white"
-        : "bg-[#1a1a1a] border-white/20 text-white hover:border-[#ff3300] hover:text-[#ff3300]"
-    } transition-colors`}
+        ? "border-[var(--g)] bg-[var(--g)]/30 scale-105"
+        : "border-white/40 bg-black/40 hover:border-[var(--g)] hover:bg-[var(--g)]/20 hover:scale-105"
+    }`}
+    {...{ "data-glow": glow }}
   >
-    {children}
+    <div style={{ "--g": glow, color: active ? "#fff" : "rgba(255,255,255,0.9)" }} className="contents">
+      {children}
+    </div>
   </button>
 );
 
@@ -65,6 +70,8 @@ export const Boombox = () => {
   const [duration, setDuration] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSlug, setRecordingSlug] = useState(null);
+  const [volume, setVolume] = useState(0.75);
+  const [powered, setPowered] = useState(true);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -76,17 +83,20 @@ export const Boombox = () => {
 
   const current = tracks[idx];
 
-  // Sync audio with current
   useEffect(() => {
     const a = audioRef.current;
     if (!a || !current) return;
     a.src = current.audio_url;
     a.currentTime = 0;
+    a.volume = volume;
     setCurrentTime(0);
-    if (isPlaying) a.play().catch(() => {});
+    if (isPlaying && powered) a.play().catch(() => {});
   }, [idx, current]);
 
-  // 30s preview cap for paid
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume;
+  }, [volume]);
+
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
@@ -112,28 +122,27 @@ export const Boombox = () => {
   }, [current]);
 
   const play = () => {
+    if (!powered) {
+      toast.error("Boombox is off. Hit the power switch.");
+      return;
+    }
     const a = audioRef.current;
     if (!a || !current) return;
     a.play().then(() => setIsPlaying(true)).catch(() => toast.error("Audio failed to load"));
   };
-  const pause = () => {
-    audioRef.current?.pause();
-    setIsPlaying(false);
-  };
+  const pause = () => { audioRef.current?.pause(); setIsPlaying(false); };
   const stop = () => {
     const a = audioRef.current;
     if (!a) return;
-    a.pause();
-    a.currentTime = 0;
-    setCurrentTime(0);
-    setIsPlaying(false);
+    a.pause(); a.currentTime = 0;
+    setCurrentTime(0); setIsPlaying(false);
   };
   const next = () => setIdx((i) => (i + 1) % Math.max(tracks.length, 1));
   const prev = () => setIdx((i) => (i - 1 + tracks.length) % Math.max(tracks.length, 1));
 
   const handleSelect = (i) => {
     setIdx(i);
-    setTimeout(play, 30);
+    setTimeout(play, 50);
   };
 
   const handleDownload = async (track) => {
@@ -143,26 +152,35 @@ export const Boombox = () => {
     toast(`Recording "${track.title}" to Deck B...`);
     try {
       const { data } = await axios.post(`${API}/instrumentals/${track.slug}/download`);
-      // Visualise transfer for ~4 seconds before triggering download
       await new Promise((res) => setTimeout(res, 4000));
       const a = document.createElement("a");
-      a.href = data.audio_url;
-      a.download = `${track.slug}.mp3`;
-      a.target = "_blank";
-      a.rel = "noopener";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      a.href = data.audio_url; a.download = `${track.slug}.mp3`;
+      a.target = "_blank"; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
       toast.success(`"${track.title}" recorded — check your downloads`);
-    } catch (e) {
+    } catch {
       toast.error("Download failed. Try again.");
     } finally {
-      setIsRecording(false);
-      setRecordingSlug(null);
+      setIsRecording(false); setRecordingSlug(null);
     }
   };
 
+  const cycleVolume = () => {
+    setVolume((v) => {
+      const next = v >= 0.99 ? 0 : Math.min(1, Math.round((v + 0.25) * 4) / 4);
+      toast(`Volume ${Math.round(next * 100)}%`);
+      return next;
+    });
+  };
+
+  const togglePower = () => {
+    if (powered && isPlaying) stop();
+    setPowered((p) => !p);
+    toast(powered ? "Power OFF" : "Power ON");
+  };
+
   const progressPct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
+  const previewCap = current?.is_free ? duration : Math.min(duration || 0, current?.preview_seconds || 30);
 
   return (
     <section
@@ -170,134 +188,196 @@ export const Boombox = () => {
       data-testid="boombox-section"
       className="relative bg-[#0a0a0a] border-y border-white/10 px-4 md:px-8 lg:px-12 py-16 md:py-24 overflow-hidden"
     >
-      <style>{`
-        @keyframes bbpulse1 { 0%{height:20%} 100%{height:90%} }
-        @keyframes bbpulse2 { 0%{height:35%} 100%{height:70%} }
-        @keyframes bbpulse3 { 0%{height:50%} 100%{height:95%} }
-        @keyframes bbpulse4 { 0%{height:15%} 100%{height:60%} }
-      `}</style>
-
       <div className="absolute -top-32 left-1/4 w-[40vw] h-[40vw] rounded-full bg-[#dfff00] opacity-[0.06] blur-3xl" />
       <div className="absolute -bottom-32 right-1/4 w-[40vw] h-[40vw] rounded-full bg-[#ff3300] opacity-[0.06] blur-3xl" />
 
-      <div className="relative max-w-7xl mx-auto">
-        <div className="mb-10 flex items-end justify-between flex-wrap gap-4">
+      <div className="relative max-w-6xl mx-auto">
+        <div className="mb-8 flex items-end justify-between flex-wrap gap-4">
           <div>
             <p className="text-xs tracking-[0.3em] uppercase text-[#dfff00] font-bold">/ The Boombox</p>
             <h2 className="font-heading text-5xl md:text-7xl uppercase tracking-tight leading-none mt-2">
               Press Play.
             </h2>
             <p className="text-white/60 text-sm mt-3 max-w-xl">
-              Preview beats for sale, or jack a free starter pack straight from Deck B.
-              30-second previews on paid joints. Free downloads are real, untagged MP3s.
+              Preview beats for sale, or jack a free starter pack onto Deck B. 30-second previews on paid joints.
+              Free downloads are real, untagged MP3s.
             </p>
           </div>
         </div>
 
-        {/* BOOMBOX BODY */}
+        {/* BOOMBOX — graffiti photo as the body */}
         <div
           data-testid="boombox-body"
-          className="relative bg-gradient-to-b from-[#1c1c1c] to-[#0d0d0d] border-2 border-white/15 p-4 md:p-8"
-          style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1), 0 30px 80px -20px rgba(0,0,0,0.8)" }}
+          className="relative aspect-square max-w-4xl mx-auto select-none"
         >
-          {/* Top handle + logo plate */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="h-1.5 w-24 md:w-40 bg-white/15" />
-            <div className="font-heading text-2xl md:text-4xl tracking-[0.1em] uppercase">
-              BEATS<span className="text-[#ff3300]">·</span>BY<span className="text-[#ff3300]">·</span>DEZ
-            </div>
-            <div className="h-1.5 w-24 md:w-40 bg-white/15" />
+          <img
+            src={BOOMBOX_IMG}
+            alt="BeatsByDez Boombox"
+            className="absolute inset-0 w-full h-full object-cover"
+            draggable="false"
+          />
+          {/* Dim slightly when powered off */}
+          {!powered && <div className="absolute inset-0 bg-black/60 transition-opacity" />}
+
+          {/* LCD READOUT — overlaid on the tuner strip */}
+          <div
+            data-testid="boombox-lcd"
+            className="absolute bg-black/85 border border-[#dfff00]/50 px-3 py-1 flex items-center gap-2 font-mono"
+            style={{ top: "40.2%", left: "16%", width: "68%", height: "3.4%" }}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                powered ? (isPlaying ? "bg-[#dfff00] animate-pulse" : "bg-[#dfff00]/40") : "bg-red-500/40"
+              }`}
+            />
+            <span data-testid="lcd-title" className="text-[#dfff00] text-[10px] md:text-xs tracking-[0.15em] uppercase truncate flex-1">
+              {!powered ? "— OFF —" : current?.title || "INSERT TAPE"}
+            </span>
+            <span data-testid="lcd-time" className="text-[#dfff00] text-[9px] md:text-[10px] font-bold tabular-nums">
+              {fmt(currentTime)}/{fmt(previewCap)}
+            </span>
           </div>
 
-          <div className="grid lg:grid-cols-[1fr_auto_1fr] gap-4 md:gap-6 items-center">
-            {/* LEFT SPEAKER */}
-            <Speaker pulse={isPlaying} />
-
-            {/* CONTROL DECK */}
-            <div className="w-full lg:w-[440px] flex flex-col gap-4">
-              {/* LCD */}
-              <div className="bg-[#020202] border border-[#dfff00]/30 p-4 font-mono text-[#dfff00]">
-                <div className="flex items-center justify-between text-[10px] tracking-[0.2em] uppercase opacity-70 mb-2">
-                  <span data-testid="lcd-mood">{current?.mood || "— — —"}</span>
-                  <span className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? "bg-[#dfff00] animate-pulse" : "bg-[#dfff00]/30"}`} />
-                    {isPlaying ? "PLAY" : "STOP"}
-                  </span>
-                </div>
-                <div
-                  data-testid="lcd-title"
-                  className="font-heading text-xl md:text-2xl tracking-tight uppercase leading-tight truncate"
-                >
-                  {current?.title || "INSERT TAPE"}
-                </div>
-                <div className="flex items-center justify-between text-[10px] tracking-[0.2em] mt-2 opacity-80">
-                  <span>BPM {current?.bpm || "—"} · {current?.key || "—"}</span>
-                  <span data-testid="lcd-time">
-                    {fmt(currentTime)} / {fmt(current?.is_free ? duration : Math.min(duration, current?.preview_seconds || 30))}
-                  </span>
-                </div>
-                <div className="h-1 bg-[#dfff00]/20 mt-3 overflow-hidden">
-                  <div
-                    className="h-full bg-[#dfff00] transition-all"
-                    style={{ width: `${progressPct}%` }}
-                    data-testid="lcd-progress"
-                  />
-                </div>
-                <EQBars active={isPlaying} />
-              </div>
-
-              {/* DUAL TAPE DECKS */}
-              <div className="grid grid-cols-2 gap-3">
-                <Deck label="DECK A · PLAY" active={isPlaying} color="#ff3300" testid="deck-a">
-                  <Reel spinning={isPlaying} color="#ff3300" />
-                  <Reel spinning={isPlaying} color="#ff3300" />
-                </Deck>
-                <Deck
-                  label={isRecording ? "DECK B · REC ●" : "DECK B · IDLE"}
-                  active={isRecording}
-                  color="#dfff00"
-                  testid="deck-b"
-                  recording={isRecording}
-                >
-                  <Reel spinning={isRecording} color="#dfff00" />
-                  <Reel spinning={isRecording} color="#dfff00" />
-                </Deck>
-              </div>
-
-              {/* TRANSPORT BUTTONS */}
-              <div className="flex items-center justify-between gap-2">
-                <TransportBtn onClick={prev} label="Previous" testid="bbox-prev">
-                  <SkipBack className="w-5 h-5" />
-                </TransportBtn>
-                {isPlaying ? (
-                  <TransportBtn onClick={pause} label="Pause" active testid="bbox-pause">
-                    <Pause className="w-5 h-5" />
-                  </TransportBtn>
-                ) : (
-                  <TransportBtn onClick={play} label="Play" testid="bbox-play">
-                    <Play className="w-5 h-5" />
-                  </TransportBtn>
-                )}
-                <TransportBtn onClick={stop} label="Stop" testid="bbox-stop">
-                  <Square className="w-5 h-5" />
-                </TransportBtn>
-                <TransportBtn onClick={next} label="Next" testid="bbox-next">
-                  <SkipForward className="w-5 h-5" />
-                </TransportBtn>
-                <TransportBtn
-                  onClick={() => current?.is_free && handleDownload(current)}
-                  label="Record / Download"
-                  active={isRecording}
-                  testid="bbox-rec"
-                >
-                  <Circle className={`w-5 h-5 ${isRecording ? "fill-white" : "fill-[#ff3300] text-[#ff3300]"}`} />
-                </TransportBtn>
-              </div>
-            </div>
-
-            {/* RIGHT SPEAKER */}
-            <Speaker pulse={isPlaying} />
+          {/* LCD progress bar — directly under the LCD */}
+          <div
+            className="absolute bg-black/70 overflow-hidden"
+            style={{ top: "44%", left: "16%", width: "68%", height: "0.6%" }}
+          >
+            <div
+              data-testid="lcd-progress"
+              className="h-full bg-[#dfff00] transition-all"
+              style={{ width: `${powered ? progressPct : 0}%` }}
+            />
           </div>
+
+          {/* CASSETTE A — left "BEATS" reels (positioned over the cassette label) */}
+          <div
+            data-testid="deck-a"
+            className="absolute flex items-center justify-around"
+            style={{ top: "47%", left: "28%", width: "15%", height: "5.5%" }}
+          >
+            <div style={{ width: "32%", height: "100%" }}>
+              <CassetteReel spinning={powered && isPlaying} color="#ff3300" />
+            </div>
+            <div style={{ width: "32%", height: "100%" }}>
+              <CassetteReel spinning={powered && isPlaying} color="#ff3300" />
+            </div>
+          </div>
+
+          {/* CASSETTE B — right "DEZ" reels (records when downloading) */}
+          <div
+            data-testid="deck-b"
+            className="absolute flex items-center justify-around"
+            style={{ top: "47%", left: "58%", width: "15%", height: "5.5%" }}
+          >
+            <div style={{ width: "32%", height: "100%" }}>
+              <CassetteReel spinning={powered && isRecording} color="#dfff00" />
+            </div>
+            <div style={{ width: "32%", height: "100%" }}>
+              <CassetteReel spinning={powered && isRecording} color="#dfff00" />
+            </div>
+          </div>
+
+          {/* REC LED on Deck B */}
+          {isRecording && (
+            <div
+              className="absolute flex items-center gap-1 bg-black/85 px-1.5 py-0.5 border border-[#ff3300]"
+              style={{ top: "44.5%", left: "58%" }}
+              data-testid="rec-led"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff3300] animate-pulse" />
+              <span className="text-[#ff3300] text-[8px] tracking-[0.2em] font-bold">REC</span>
+            </div>
+          )}
+
+          {/* TAPE TRANSFER glow — line from Deck A to Deck B while recording */}
+          {isRecording && (
+            <div
+              className="absolute pointer-events-none"
+              style={{ top: "49.5%", left: "43%", width: "15%", height: "1.2%" }}
+            >
+              <div className="w-full h-full bg-gradient-to-r from-[#ff3300] via-[#dfff00] to-[#dfff00] opacity-80 animate-pulse" />
+            </div>
+          )}
+
+          {/* POWER LED (top right above mixer) */}
+          <div
+            className="absolute rounded-full transition-all"
+            style={{
+              top: "23%",
+              left: "21.5%",
+              width: "0.9%",
+              height: "0.9%",
+              backgroundColor: powered ? "#22c55e" : "#444",
+              boxShadow: powered ? "0 0 10px #22c55e" : "none",
+            }}
+          />
+
+          {/* TRANSPORT BUTTON HOTSPOTS — over the chrome button row */}
+          <HotBtn onClick={prev} label="Previous track" testid="bbox-prev"
+            style={{ top: "65.5%", left: "23%", width: "5.5%", height: "5.5%" }}>
+            <SkipBack className="w-3 h-3 md:w-4 md:h-4" />
+          </HotBtn>
+
+          {isPlaying && powered ? (
+            <HotBtn onClick={pause} active label="Pause" testid="bbox-pause"
+              style={{ top: "65.5%", left: "35%", width: "5.5%", height: "5.5%" }} glow="#dfff00">
+              <Pause className="w-3 h-3 md:w-4 md:h-4" />
+            </HotBtn>
+          ) : (
+            <HotBtn onClick={play} label="Play" testid="bbox-play"
+              style={{ top: "65.5%", left: "35%", width: "5.5%", height: "5.5%" }} glow="#dfff00">
+              <Play className="w-3 h-3 md:w-4 md:h-4" />
+            </HotBtn>
+          )}
+
+          <HotBtn onClick={stop} label="Stop" testid="bbox-stop"
+            style={{ top: "65.5%", left: "47%", width: "5.5%", height: "5.5%" }}>
+            <Square className="w-3 h-3 md:w-4 md:h-4" />
+          </HotBtn>
+
+          <HotBtn onClick={next} label="Next track" testid="bbox-next"
+            style={{ top: "65.5%", left: "59%", width: "5.5%", height: "5.5%" }}>
+            <SkipForward className="w-3 h-3 md:w-4 md:h-4" />
+          </HotBtn>
+
+          <HotBtn onClick={() => current?.is_free && handleDownload(current)}
+            active={isRecording} label="Record / download free beat" testid="bbox-rec"
+            style={{ top: "65.5%", left: "71%", width: "5.5%", height: "5.5%" }} glow="#ff3300">
+            <Circle className={`w-3 h-3 md:w-4 md:h-4 ${isRecording ? "fill-white text-white" : "fill-[#ff3300] text-[#ff3300]"}`} />
+          </HotBtn>
+
+          {/* VOLUME KNOB — over leftmost knob in mixer */}
+          <HotBtn onClick={cycleVolume} label={`Volume ${Math.round(volume * 100)}%`} testid="bbox-volume"
+            style={{ top: "26.5%", left: "29.2%", width: "4%", height: "4.5%" }} glow="#dfff00">
+            <span className="text-[7px] md:text-[9px] font-bold tabular-nums">{Math.round(volume * 100)}</span>
+          </HotBtn>
+
+          {/* POWER SWITCH — over top-left switch */}
+          <HotBtn onClick={togglePower} active={!powered} label="Power" testid="bbox-power"
+            style={{ top: "23.5%", left: "21%", width: "4%", height: "4.5%" }}
+            glow={powered ? "#22c55e" : "#ff3300"}>
+            <span className="text-[7px] md:text-[8px] font-bold tracking-widest">{powered ? "ON" : "OFF"}</span>
+          </HotBtn>
+
+          {/* CASSETTE-A clickable surface — clicking the BEATS cassette plays the current track */}
+          <button
+            type="button"
+            onClick={play}
+            aria-label="Activate Deck A"
+            data-testid="deck-a-click"
+            className="absolute hover:bg-white/5 transition-colors"
+            style={{ top: "46%", left: "25%", width: "20%", height: "12%" }}
+          />
+          {/* CASSETTE-B clickable surface — clicking the DEZ cassette downloads the current free beat */}
+          <button
+            type="button"
+            onClick={() => current?.is_free && handleDownload(current)}
+            aria-label="Activate Deck B"
+            data-testid="deck-b-click"
+            className="absolute hover:bg-white/5 transition-colors"
+            style={{ top: "46%", left: "55%", width: "20%", height: "12%" }}
+          />
         </div>
 
         {/* TRACK LIST */}
@@ -320,60 +400,6 @@ export const Boombox = () => {
     </section>
   );
 };
-
-const Speaker = ({ pulse }) => (
-  <div className="relative w-full max-w-[280px] mx-auto aspect-square">
-    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#202020] to-[#080808] border-2 border-white/10" />
-    <div
-      className={`absolute inset-6 rounded-full bg-gradient-to-br from-[#1a1a1a] to-black border border-white/10 ${
-        pulse ? "animate-[spin_8s_linear_infinite]" : ""
-      }`}
-    />
-    <div className="absolute inset-12 rounded-full bg-[#0a0a0a] border border-white/10" />
-    <div className="absolute inset-[40%] rounded-full bg-gradient-to-br from-[#ff3300] to-[#7a1500] border border-black/40 shadow-[0_0_30px_rgba(255,51,0,0.35)]" />
-    {/* speaker grille dots */}
-    <div className="absolute inset-0 pointer-events-none">
-      {[0, 60, 120, 180, 240, 300].map((deg) => (
-        <div
-          key={deg}
-          className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full bg-white/15"
-          style={{ transform: `translate(-50%, -50%) rotate(${deg}deg) translateY(-110px)` }}
-        />
-      ))}
-    </div>
-  </div>
-);
-
-const Deck = ({ children, label, active, color, testid, recording }) => (
-  <div
-    data-testid={testid}
-    className={`bg-[#080808] border ${active ? "border-[var(--col)]" : "border-white/10"} p-3 transition-colors`}
-    style={{ "--col": color }}
-  >
-    <div className="flex items-center justify-between mb-3 text-[9px] tracking-[0.2em] uppercase font-bold">
-      <span className={active ? "text-[var(--col)]" : "text-white/40"} style={{ color: active ? color : undefined }}>
-        {label}
-      </span>
-      {recording && (
-        <span className="text-[#ff3300] flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#ff3300] animate-pulse" /> REC
-        </span>
-      )}
-    </div>
-    <div className="flex justify-between items-center gap-3">{children}</div>
-    {/* Tape window strip */}
-    <div className="h-1 bg-white/5 mt-3 overflow-hidden">
-      <div
-        className="h-full transition-all"
-        style={{
-          width: active ? "100%" : "20%",
-          backgroundColor: color,
-          opacity: active ? 0.7 : 0.2,
-        }}
-      />
-    </div>
-  </div>
-);
 
 const TrackRow = ({ track, active, isPlaying, recording, onSelect, onDownload }) => (
   <div
