@@ -21,7 +21,7 @@ db = client[os.environ['DB_NAME']]
 app = FastAPI(title="BeatsByDez Store")
 api_router = APIRouter(prefix="/api")
 
-DEZ_LOGO = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/ixiugo5j_Gemini_Generated_Image_.png"
+DEZ_LOGO = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg"
 DEZ_PORTRAIT = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/5btnld6i_Snapchat-1994296522.jpg"
 DEZ_STUDIO = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg"
 LUNG_PUNCH_LOGO = "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/t4dqvb7t_Gemini_Generated_Image_%20%281%29-EDIT.jpg"
