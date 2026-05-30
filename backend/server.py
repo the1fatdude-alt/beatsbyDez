@@ -300,12 +300,12 @@ SEED_INSTRUMENTALS = [
     },
     # FREE — 3 free downloads
     {
-        "slug": "free-starter-01",
-        "title": "STARTER PACK 01",
-        "mood": "TRAP / FREE",
-        "bpm": 140,
-        "key": "D Minor",
-        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+        "slug": "weak-relatives",
+        "title": "WEAK RELATIVES",
+        "mood": "HIP HOP / FREE",
+        "bpm": 88,
+        "key": "A Minor",
+        "audio_url": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/hlhaon6o_The%201FatDUDe-weak%20as%20relatives-Open-High.mp3",
         "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg",
         "is_free": True,
         "price": 0.0,
