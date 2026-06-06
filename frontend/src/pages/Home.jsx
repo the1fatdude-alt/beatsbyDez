@@ -78,12 +78,12 @@ export default function Home() {
           </div>
 
           <div className="order-1 lg:order-2 relative">
-            <div className="relative aspect-square max-w-[640px] mx-auto rounded-[40px] overflow-hidden border border-white/10">
+            <div className="relative w-full max-w-[640px] mx-auto aspect-[16/10] rounded-[40px] overflow-hidden border border-white/10 bg-[#0a0a0a]">
               <img
                 src={DEZ_LOGO}
                 alt="BeatsByDez graffiti"
                 data-testid="hero-dez-artwork"
-                className="w-full h-full object-cover drop-shadow-[0_0_60px_rgba(223,255,0,0.25)]"
+                className="w-full h-full object-contain drop-shadow-[0_0_60px_rgba(223,255,0,0.25)]"
               />
             </div>
           </div>
@@ -175,11 +175,11 @@ export default function Home() {
       <section className="relative bg-[#0a0a0a] border-y border-white/10">
         <div className="grid lg:grid-cols-2 items-stretch">
           <div className="relative aspect-[4/3] lg:aspect-auto bg-black flex items-center justify-center p-10">
-            <div className="w-full max-w-[480px] aspect-square rounded-[32px] overflow-hidden border border-white/10">
+            <div className="w-full max-w-[520px] aspect-[16/10] rounded-[32px] overflow-hidden border border-white/10 bg-[#0a0a0a]">
               <img
                 src={DEZ_LOGO}
                 alt="BeatsByDez"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
           </div>
