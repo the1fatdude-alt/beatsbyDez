@@ -7,8 +7,7 @@ import { Marquee } from "../components/Marquee";
 import { Countdown } from "../components/Countdown";
 import { Boombox } from "../components/Boombox";
 
-const DEZ_LOGO =
-  "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg";
+const DEZ_LOGO = "/dez-logo.png";
 const DEZ_STUDIO =
   "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg";
 
@@ -78,12 +77,12 @@ export default function Home() {
           </div>
 
           <div className="order-1 lg:order-2 relative">
-            <div className="relative w-full max-w-[640px] mx-auto aspect-[16/10] rounded-[40px] overflow-hidden border border-white/10 bg-[#0a0a0a]">
+            <div className="relative w-full max-w-[640px] mx-auto aspect-[16/10]">
               <img
                 src={DEZ_LOGO}
                 alt="BeatsByDez graffiti"
                 data-testid="hero-dez-artwork"
-                className="w-full h-full object-contain drop-shadow-[0_0_60px_rgba(223,255,0,0.25)]"
+                className="w-full h-full object-contain drop-shadow-[0_0_40px_rgba(223,255,0,0.45)]"
               />
             </div>
           </div>
@@ -175,11 +174,11 @@ export default function Home() {
       <section className="relative bg-[#0a0a0a] border-y border-white/10">
         <div className="grid lg:grid-cols-2 items-stretch">
           <div className="relative aspect-[4/3] lg:aspect-auto bg-black flex items-center justify-center p-10">
-            <div className="w-full max-w-[520px] aspect-[16/10] rounded-[32px] overflow-hidden border border-white/10 bg-[#0a0a0a]">
+            <div className="w-full max-w-[520px] aspect-[16/10]">
               <img
                 src={DEZ_LOGO}
                 alt="BeatsByDez"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain drop-shadow-[0_0_40px_rgba(223,255,0,0.35)]"
               />
             </div>
           </div>

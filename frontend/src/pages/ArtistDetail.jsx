@@ -59,11 +59,11 @@ export default function ArtistDetail() {
             </div>
           </div>
           <div className="relative flex items-center justify-center">
-            <div className="w-full max-w-[640px] aspect-[16/10] rounded-[40px] overflow-hidden border border-white/10 bg-[#0a0a0a]">
+            <div className="w-full max-w-[640px] aspect-[16/10]">
               <img
-                src={artist.image}
+                src="/dez-logo.png"
                 alt={artist.name}
-                className="w-full h-full object-contain drop-shadow-[0_0_80px_rgba(223,255,0,0.2)]"
+                className="w-full h-full object-contain drop-shadow-[0_0_60px_rgba(223,255,0,0.4)]"
               />
             </div>
           </div>
