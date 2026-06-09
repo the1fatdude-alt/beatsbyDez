@@ -192,17 +192,33 @@ export const Boombox = () => {
       <div className="absolute -bottom-32 right-1/4 w-[40vw] h-[40vw] rounded-full bg-[#ff3300] opacity-[0.06] blur-3xl" />
 
       <div className="relative max-w-6xl mx-auto">
-        <div className="mb-8 flex items-end justify-between flex-wrap gap-4">
-          <div>
-            <p className="text-xs tracking-[0.3em] uppercase text-[#dfff00] font-bold">/ The Boombox</p>
-            <h2 className="font-heading text-5xl md:text-7xl uppercase tracking-tight leading-none mt-2">
-              Press Play.
-            </h2>
-            <p className="text-white/60 text-sm mt-3 max-w-xl">
-              Preview beats for sale, or jack a free starter pack onto Deck B. 30-second previews on paid joints.
-              Free downloads are real, untagged MP3s.
+        <div className="mb-8">
+          <p className="text-xs tracking-[0.3em] uppercase text-[#dfff00] font-bold">/ The Boombox</p>
+          <h2 className="font-heading text-5xl md:text-7xl uppercase tracking-tight leading-none mt-2">
+            Press Play.
+          </h2>
+
+          <blockquote
+            data-testid="boombox-manifesto"
+            className="mt-8 border-l-4 border-[#ff3300] pl-5 md:pl-7 max-w-3xl"
+          >
+            <p className="font-heading text-lg md:text-2xl uppercase tracking-tight leading-snug text-white">
+              "For Beats by Dez, hip-hop is life. This brand was born from a deep, unapologetic love
+              for the music and the lifestyle behind it. To show that love, I'm paying it forward
+              by offering free downloads of my production — putting the music back into the hands
+              of the people who need it. I'm always looking to collaborate with artists, songwriters,
+              producers, singers, and musicians who share that same grit. If you've got something
+              to say, let's get to work."
             </p>
-          </div>
+            <footer className="mt-4 text-[10px] tracking-[0.3em] uppercase font-bold text-[#dfff00]">
+              — Dez
+            </footer>
+          </blockquote>
+
+          <p className="text-white/60 text-sm mt-6 max-w-xl">
+            Preview beats for sale, or jack a free starter pack onto Deck B. 30-second previews on paid joints.
+            Free downloads are real, untagged MP3s.
+          </p>
         </div>
 
         {/* BOOMBOX — graffiti photo as the body */}
