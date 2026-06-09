@@ -107,6 +107,7 @@ class Instrumental(BaseModel):
     price: float = 0.0
     preview_seconds: int = 30
     downloads: int = 0
+    coming_soon: bool = False
 
 
 class DownloadResponse(BaseModel):
@@ -249,18 +250,19 @@ SEED_PRODUCTS = [
 
 
 SEED_INSTRUMENTALS = [
-    # FOR-SALE — 30s previews
+    # FOR-SALE — coming soon (placeholders until real paid beats uploaded)
     {
         "slug": "obsidian-bounce",
         "title": "OBSIDIAN BOUNCE",
         "mood": "TRAP",
         "bpm": 142,
         "key": "F# Minor",
-        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg",
+        "audio_url": "",
+        "cover": "/dez-logo.png",
         "is_free": False,
         "price": 34.99,
         "preview_seconds": 30,
+        "coming_soon": True,
     },
     {
         "slug": "lung-punch-instrumental",
@@ -268,11 +270,12 @@ SEED_INSTRUMENTALS = [
         "mood": "BOOM BAP",
         "bpm": 92,
         "key": "C Minor",
-        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        "audio_url": "",
         "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/t4dqvb7t_Gemini_Generated_Image_%20%281%29-EDIT.jpg",
         "is_free": False,
         "price": 49.99,
         "preview_seconds": 30,
+        "coming_soon": True,
     },
     {
         "slug": "midnight-808s",
@@ -280,11 +283,12 @@ SEED_INSTRUMENTALS = [
         "mood": "DRILL",
         "bpm": 148,
         "key": "G Minor",
-        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/c32fw61l_Gemini_Generated_Image_-EDIT.jpg",
+        "audio_url": "",
+        "cover": "/dez-logo.png",
         "is_free": False,
         "price": 29.99,
         "preview_seconds": 30,
+        "coming_soon": True,
     },
     {
         "slug": "spraycan-soul",
@@ -292,11 +296,12 @@ SEED_INSTRUMENTALS = [
         "mood": "LO-FI",
         "bpm": 78,
         "key": "A Minor",
-        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/t4dqvb7t_Gemini_Generated_Image_%20%281%29-EDIT.jpg",
+        "audio_url": "",
+        "cover": "/dez-logo.png",
         "is_free": False,
         "price": 24.99,
         "preview_seconds": 30,
+        "coming_soon": True,
     },
     # FREE — Dez's real productions
     {

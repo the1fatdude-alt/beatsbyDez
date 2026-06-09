@@ -86,6 +86,14 @@ export const Boombox = () => {
   useEffect(() => {
     const a = audioRef.current;
     if (!a || !current) return;
+    if (current.coming_soon || !current.audio_url) {
+      a.pause();
+      a.removeAttribute("src");
+      setCurrentTime(0);
+      setDuration(0);
+      setIsPlaying(false);
+      return;
+    }
     a.src = current.audio_url;
     a.currentTime = 0;
     a.volume = volume;
@@ -124,6 +132,10 @@ export const Boombox = () => {
   const play = () => {
     if (!powered) {
       toast.error("Boombox is off. Hit the power switch.");
+      return;
+    }
+    if (current?.coming_soon) {
+      toast("This beat is coming soon — stay tuned.");
       return;
     }
     const a = audioRef.current;
@@ -421,15 +433,22 @@ const TrackRow = ({ track, active, isPlaying, recording, onSelect, onDownload })
   <div
     data-testid={`track-row-${track.slug}`}
     className={`flex items-center gap-3 p-3 border ${
-      active ? "border-[#ff3300] bg-[#ff3300]/5" : "border-white/10 bg-[#0a0a0a]"
+      track.coming_soon
+        ? "border-white/10 bg-[#0a0a0a] opacity-60"
+        : active
+        ? "border-[#ff3300] bg-[#ff3300]/5"
+        : "border-white/10 bg-[#0a0a0a]"
     } transition-colors`}
   >
     <button
       type="button"
       onClick={onSelect}
+      disabled={track.coming_soon}
       aria-label={`Play ${track.title}`}
       data-testid={`track-play-${track.slug}`}
-      className="w-12 h-12 flex items-center justify-center border border-white/20 hover:border-[#ff3300] hover:text-[#ff3300] transition-colors"
+      className={`w-12 h-12 flex items-center justify-center border border-white/20 transition-colors ${
+        track.coming_soon ? "cursor-not-allowed text-white/30" : "hover:border-[#ff3300] hover:text-[#ff3300]"
+      }`}
     >
       {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
     </button>
@@ -441,7 +460,14 @@ const TrackRow = ({ track, active, isPlaying, recording, onSelect, onDownload })
         {track.mood} · BPM {track.bpm} · {track.key}
       </p>
     </div>
-    {track.is_free ? (
+    {track.coming_soon ? (
+      <span
+        data-testid={`track-coming-soon-${track.slug}`}
+        className="flex items-center gap-2 px-4 py-2 text-[10px] tracking-[0.2em] uppercase font-bold border border-white/20 text-white/50"
+      >
+        Coming Soon
+      </span>
+    ) : track.is_free ? (
       <button
         type="button"
         onClick={onDownload}
