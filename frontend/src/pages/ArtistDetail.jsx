@@ -115,7 +115,7 @@ export default function ArtistDetail() {
           <div className="space-y-6">
             {paragraphs.map((p, i) => (
               <p
-                key={i}
+                key={`${i}-${p.slice(0, 24)}`}
                 data-testid={`bio-paragraph-${i}`}
                 className={
                   i === 0

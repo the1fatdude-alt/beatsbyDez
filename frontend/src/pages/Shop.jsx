@@ -69,11 +69,13 @@ export default function Shop() {
         ))}
       </div>
 
-      {loading ? (
-        <p className="text-white/60 text-sm">Loading...</p>
-      ) : filtered.length === 0 ? (
-        <p data-testid="shop-empty" className="text-white/60 text-sm">No products found in this category.</p>
-      ) : (
+      {loading && <p className="text-white/60 text-sm">Loading...</p>}
+      {!loading && filtered.length === 0 && (
+        <p data-testid="shop-empty" className="text-white/60 text-sm">
+          No products found in this category.
+        </p>
+      )}
+      {!loading && filtered.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-0 border-l border-t border-white/10">
           {filtered.map((p) => (
             <div key={p.id} className="border-r border-b border-white/10 -m-px">
