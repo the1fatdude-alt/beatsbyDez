@@ -8,6 +8,13 @@ const DEZ_PORTRAIT =
 const DEZ_STUDIO =
   "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg";
 
+const CREDITS = [
+  { era: "1994 — present", name: "Lifelong craft" },
+  { era: "Origins", name: "Elevation Nation" },
+  { era: "Florida Treasure Coast", name: "US-1 Label" },
+  { era: "Present", name: "E-Productions × Mo Budmans Studios" },
+];
+
 export default function ArtistDetail() {
   const params = useParams();
   const slug = params.slug || "dez";
@@ -36,29 +43,42 @@ export default function ArtistDetail() {
       </div>
     );
 
+  const paragraphs = (artist.bio || "").split(/\n\n+/).filter(Boolean);
+  const pullQuote = "Since 1994 — this is the only thing I know.";
+
   return (
     <div data-testid="artist-detail-page">
-      <section className="relative min-h-[80vh] overflow-hidden bg-[#0a0a0a] border-b border-white/10">
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-[#0a0a0a] border-b border-white/10">
         <div className="absolute -top-24 -right-24 w-[60vw] h-[60vw] rounded-full bg-[#dfff00] opacity-[0.07] blur-3xl" />
         <div className="absolute bottom-0 -left-32 w-[50vw] h-[50vw] rounded-full bg-[#ff3300] opacity-[0.08] blur-3xl" />
 
-        <div className="relative grid lg:grid-cols-2 gap-0 items-center px-4 md:px-8 lg:px-12 py-16">
+        <div className="relative grid lg:grid-cols-2 gap-0 items-center px-4 md:px-8 lg:px-12 py-16 md:py-24">
           <div>
             <p className="text-xs tracking-[0.3em] uppercase text-[#dfff00] font-bold">/ The Producer</p>
             <h1 className="font-heading text-7xl md:text-9xl uppercase tracking-tighter leading-[0.85] mt-3">
               {artist.name}<span className="text-[#ff3300]">.</span>
             </h1>
-            <p className="text-white/80 max-w-xl mt-6 text-base md:text-lg leading-relaxed">{artist.bio}</p>
-            <div className="mt-8 flex gap-3">
+            <p className="font-heading text-xl md:text-2xl uppercase tracking-tight text-white/70 mt-6 max-w-md">
+              {pullQuote}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/shop"
+                data-testid="artist-shop-cta"
                 className="btn-brutal inline-flex items-center gap-3 bg-[#dfff00] text-black px-7 py-3 text-xs uppercase tracking-[0.2em] font-bold hover:bg-[#ff3300] hover:text-white"
               >
                 Shop The Catalog
               </Link>
+              <a
+                href="#bio"
+                className="btn-brutal inline-flex items-center gap-3 border border-white/30 px-7 py-3 text-xs uppercase tracking-[0.2em] font-bold hover:border-[#ff3300] hover:text-[#ff3300]"
+              >
+                Read The Story
+              </a>
             </div>
           </div>
-          <div className="relative flex items-center justify-center">
+          <div className="relative flex items-center justify-center mt-10 lg:mt-0">
             <div className="w-full max-w-[640px] aspect-[16/10]">
               <img
                 src="/dez-logo.png"
@@ -70,6 +90,47 @@ export default function ArtistDetail() {
         </div>
       </section>
 
+      {/* BIOGRAPHY */}
+      <section
+        id="bio"
+        data-testid="artist-bio-section"
+        className="px-4 md:px-8 lg:px-12 py-16 md:py-24 border-b border-white/10"
+      >
+        <div className="grid lg:grid-cols-[1fr_2fr] gap-10 lg:gap-16 max-w-6xl mx-auto">
+          <div>
+            <p className="text-xs tracking-[0.3em] uppercase text-[#ff3300] font-bold">/ Biography</p>
+            <h2 className="font-heading text-5xl md:text-7xl uppercase tracking-tight leading-none mt-3">
+              Three<br />Decades<br /><span className="text-white/40">Deep.</span>
+            </h2>
+            <div className="mt-8 space-y-3 border-l-2 border-[#dfff00]/40 pl-4">
+              {CREDITS.map((c) => (
+                <div key={c.name} data-testid={`credit-${c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-bold text-[#dfff00]">{c.era}</p>
+                  <p className="font-heading text-lg uppercase tracking-tight">{c.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {paragraphs.map((p, i) => (
+              <p
+                key={i}
+                data-testid={`bio-paragraph-${i}`}
+                className={
+                  i === 0
+                    ? "text-lg md:text-xl text-white leading-relaxed first-letter:text-6xl md:first-letter:text-8xl first-letter:font-heading first-letter:uppercase first-letter:float-left first-letter:mr-3 first-letter:leading-[0.85] first-letter:text-[#ff3300]"
+                    : "text-base md:text-lg text-white/75 leading-relaxed"
+                }
+              >
+                {p}
+              </p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* THE MAN / THE LAB */}
       <section className="px-4 md:px-8 lg:px-12 py-16 border-b border-white/10">
         <div className="grid lg:grid-cols-2 gap-0 border-l border-t border-white/10">
           <div className="relative aspect-[4/5] lg:aspect-square border-r border-b border-white/10 -m-px overflow-hidden">
@@ -97,6 +158,7 @@ export default function ArtistDetail() {
         </div>
       </section>
 
+      {/* CATALOG */}
       <section className="px-4 md:px-8 lg:px-12 py-16">
         <h2 className="font-heading text-4xl md:text-6xl uppercase tracking-tight mb-8">The Catalog</h2>
         {products.length === 0 ? (
