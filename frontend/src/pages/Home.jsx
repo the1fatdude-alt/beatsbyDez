@@ -11,6 +11,9 @@ const DEZ_LOGO = "/dez-logo.png";
 const DEZ_STUDIO =
   "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg";
 
+const MARQUEE_TOP = ["BEATSBYDEZ", "NEW DROPS", "LIMITED EDITION", "WORLDWIDE SHIPPING"];
+const MARQUEE_BOTTOM = ["DEZ", "BEATSBYDEZ", "LUNG PUNCH", "BEATS BY DEZ"];
+
 export default function Home() {
   const [products, setProducts] = useState([]);
 
@@ -89,9 +92,7 @@ export default function Home() {
         </div>
       </section>
 
-      <Marquee
-        items={["BEATSBYDEZ", "NEW DROPS", "LIMITED EDITION", "WORLDWIDE SHIPPING"]}
-      />
+      <Marquee items={MARQUEE_TOP} />
 
       {/* THE BOOMBOX */}
       <Boombox />
@@ -268,5 +269,8 @@ export default function Home() {
         </div>
       </section>
     </div>
+  );
+}
+div>
   );
 }

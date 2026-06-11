@@ -13,6 +13,15 @@ import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import ArtistDetail from "./pages/ArtistDetail";
 
+const TOAST_OPTIONS = {
+  style: {
+    background: "#0a0a0a",
+    border: "1px solid #27272a",
+    color: "#ffffff",
+    borderRadius: 0,
+  },
+};
+
 function App() {
   return (
     <div className="App grain min-h-screen bg-[#050505] text-white">
@@ -33,18 +42,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
-          <Toaster
-            theme="dark"
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: "#0a0a0a",
-                border: "1px solid #27272a",
-                color: "#ffffff",
-                borderRadius: 0,
-              },
-            }}
-          />
+          <Toaster theme="dark" position="top-right" toastOptions={TOAST_OPTIONS} />
         </CartProvider>
       </BrowserRouter>
     </div>

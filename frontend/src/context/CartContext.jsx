@@ -78,23 +78,12 @@ export const CartProvider = ({ children }) => {
     [items]
   );
 
-  return (
-    <CartContext.Provider
-      value={{
-        items,
-        addItem,
-        updateQuantity,
-        removeItem,
-        clearCart,
-        subtotal,
-        count,
-        open,
-        setOpen,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  const value = useMemo(
+    () => ({ items, addItem, updateQuantity, removeItem, clearCart, subtotal, count, open, setOpen }),
+    [items, subtotal, count, open]
   );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
 export const useCart = () => {
