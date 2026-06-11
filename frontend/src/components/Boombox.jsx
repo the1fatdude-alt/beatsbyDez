@@ -414,6 +414,72 @@ export const Boombox = () => {
           />
         </div>
 
+        {/* HOW TO USE */}
+        <div
+          data-testid="boombox-instructions"
+          className="mt-10 border border-white/10 bg-[#0a0a0a] p-5 md:p-7"
+        >
+          <p className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#dfff00] mb-5">
+            / How to Use the Boombox
+          </p>
+          <ol className="grid md:grid-cols-2 gap-x-8 gap-y-4 text-sm md:text-base text-white/75 leading-snug">
+            <li className="flex gap-3">
+              <span className="font-heading text-2xl md:text-3xl text-[#ff3300] leading-none w-7 shrink-0">1</span>
+              <p>
+                <span className="font-heading uppercase tracking-tight text-white text-base md:text-lg block mb-0.5">
+                  Hit the Power
+                </span>
+                Click <span className="text-[#22c55e] font-bold">ON</span> at the top-left of the boombox to wake it up — the LCD lights up neon.
+              </p>
+            </li>
+            <li className="flex gap-3">
+              <span className="font-heading text-2xl md:text-3xl text-[#ff3300] leading-none w-7 shrink-0">2</span>
+              <p>
+                <span className="font-heading uppercase tracking-tight text-white text-base md:text-lg block mb-0.5">
+                  Pick a Beat
+                </span>
+                Click any track in the list below, or tap the <span className="text-white font-bold">BEATS cassette</span> on Deck A. Use <span className="text-white font-bold">PREV / NEXT</span> to flip through.
+              </p>
+            </li>
+            <li className="flex gap-3">
+              <span className="font-heading text-2xl md:text-3xl text-[#ff3300] leading-none w-7 shrink-0">3</span>
+              <p>
+                <span className="font-heading uppercase tracking-tight text-white text-base md:text-lg block mb-0.5">
+                  Transport Buttons
+                </span>
+                Chrome row across the boombox: <span className="text-white font-bold">PREV · PLAY · STOP · NEXT · REC</span>. The volume knob cycles 0 → 100%.
+              </p>
+            </li>
+            <li className="flex gap-3">
+              <span className="font-heading text-2xl md:text-3xl text-[#ff3300] leading-none w-7 shrink-0">4</span>
+              <p>
+                <span className="font-heading uppercase tracking-tight text-white text-base md:text-lg block mb-0.5">
+                  Grab a Free Beat
+                </span>
+                Hit <span className="text-[#dfff00] font-bold">FREE DL</span> on any track (or click the <span className="text-[#dfff00] font-bold">DEZ cassette</span> on Deck B). Deck B records for ~4 seconds — then the MP3 lands in your downloads. Real, untagged file, no signup.
+              </p>
+            </li>
+            <li className="flex gap-3">
+              <span className="font-heading text-2xl md:text-3xl text-[#ff3300] leading-none w-7 shrink-0">5</span>
+              <p>
+                <span className="font-heading uppercase tracking-tight text-white text-base md:text-lg block mb-0.5">
+                  Coming Soon Rows
+                </span>
+                Paid beats that haven't dropped yet — greyed out and locked. Check back as Dez releases them.
+              </p>
+            </li>
+            <li className="flex gap-3">
+              <span className="font-heading text-2xl md:text-3xl text-[#ff3300] leading-none w-7 shrink-0">6</span>
+              <p>
+                <span className="font-heading uppercase tracking-tight text-white text-base md:text-lg block mb-0.5">
+                  Background Track
+                </span>
+                <span className="text-[#dfff00] font-bold">"1996"</span> plays ambient in the corner — hit the bottom-left toggle to unmute. It auto-ducks whenever the boombox is active.
+              </p>
+            </li>
+          </ol>
+        </div>
+
         {/* TRACK LIST */}
         <div className="mt-10 grid md:grid-cols-2 gap-4">
           {tracks.map((t, i) => (
