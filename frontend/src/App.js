@@ -5,6 +5,7 @@ import { CartProvider } from "./context/CartContext";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { CartSheet } from "./components/CartSheet";
+import { BackgroundMusic } from "./components/BackgroundMusic";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -19,6 +20,7 @@ function App() {
         <CartProvider>
           <Navbar />
           <CartSheet />
+          <BackgroundMusic />
           <main className="relative z-[2]">
             <Routes>
               <Route path="/" element={<Home />} />

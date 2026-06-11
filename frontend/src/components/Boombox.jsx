@@ -191,6 +191,12 @@ export const Boombox = () => {
     toast(powered ? "Power OFF" : "Power ON");
   };
 
+  // Notify global background music to duck while boombox is active
+  useEffect(() => {
+    const evt = isPlaying || isRecording ? "boombox-active" : "boombox-inactive";
+    window.dispatchEvent(new CustomEvent(evt));
+  }, [isPlaying, isRecording]);
+
   const progressPct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
   const previewCap = current?.is_free ? duration : Math.min(duration || 0, current?.preview_seconds || 30);
 
