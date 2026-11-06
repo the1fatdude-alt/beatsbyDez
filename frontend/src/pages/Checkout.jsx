@@ -5,7 +5,7 @@ import { createOrder } from "../lib/api";
 import { toast } from "sonner";
 
 export default function Checkout() {
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal, merchSubtotal, clearCart } = useCart();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -17,7 +17,7 @@ export default function Checkout() {
     country: "United States",
   });
 
-  const shipping = subtotal >= 100 ? 0 : 9.99;
+  const shipping = merchSubtotal === 0 || merchSubtotal >= 100 ? 0 : 9.99;
   const total = subtotal + shipping;
 
   const update = (k) => (e) => setForm({ ...form, [k]: e.target.value });

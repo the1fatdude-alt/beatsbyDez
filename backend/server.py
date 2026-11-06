@@ -1,11 +1,12 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
+from fastapi.responses import PlainTextResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone, timedelta
@@ -14,9 +15,20 @@ from datetime import datetime, timezone, timedelta
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+import csv  # noqa: E402
+import io  # noqa: E402
+from emailer import send_email, welcome_email_html  # noqa: E402
+from auth import (  # noqa: E402
+    seed_admin, verify_password, create_access_token, set_auth_cookie,
+    check_lockout, record_failure, get_admin,
+)
+
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="BeatsByDez Store")
 api_router = APIRouter(prefix="/api")
@@ -91,7 +103,16 @@ class Order(BaseModel):
 
 
 class NewsletterSignup(BaseModel):
-    email: str
+    email: EmailStr
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+LEASE_PRICE = 29.99
+LEASE_LABEL = "Non-Exclusive Lease"
 
 
 class Instrumental(BaseModel):
@@ -108,6 +129,7 @@ class Instrumental(BaseModel):
     preview_seconds: int = 30
     downloads: int = 0
     coming_soon: bool = False
+    license: Optional[str] = None
 
 
 class DownloadResponse(BaseModel):
@@ -130,65 +152,6 @@ SEED_ARTISTS = [
 ]
 
 SEED_PRODUCTS = [
-    {
-        "slug": "lung-punch-vinyl",
-        "title": "LUNG PUNCH — VINYL LP",
-        "artist": "DEZ",
-        "category": "vinyl",
-        "price": 45.00,
-        "image": LUNG_PUNCH_LOGO,
-        "images": [LUNG_PUNCH_LOGO],
-        "description": "The new project. Lung Punch — twelve tracks of pure smoke and bass. Limited red-and-black splatter vinyl. Numbered jacket, exclusive zine, instrumental download code. Signed by Dez.",
-        "is_limited": True,
-        "is_new_drop": True,
-        "stock": 613,
-        "total_supply": 1000,
-        "sold_count": 387,
-        "drop_ends_at": _drop_ends(7),
-    },
-    {
-        "slug": "lung-punch-hoodie",
-        "title": "LUNG PUNCH — HOODIE",
-        "artist": "DEZ",
-        "category": "apparel",
-        "price": 95.00,
-        "image": LUNG_PUNCH_MERCH,
-        "images": [LUNG_PUNCH_MERCH],
-        "description": "Heavyweight 400gsm cotton hoodie. Full-front Lung Punch graphic — embroidered lungs, red fist, dripping bass. Available in jet black and heather grey. Garment-washed for instant worn-in feel.",
-        "sizes": ["S", "M", "L", "XL", "XXL"],
-        "is_limited": True,
-        "is_new_drop": True,
-        "stock": 280,
-        "total_supply": 500,
-        "sold_count": 218,
-        "drop_ends_at": _drop_ends(12),
-    },
-    {
-        "slug": "lung-punch-crew",
-        "title": "LUNG PUNCH — CREW SWEATSHIRT",
-        "artist": "DEZ",
-        "category": "apparel",
-        "price": 78.00,
-        "image": LUNG_PUNCH_MERCH,
-        "images": [LUNG_PUNCH_MERCH],
-        "description": "Heather charcoal crewneck with 'Beats By Dez' script across the chest. Mid-weight fleece, ribbed cuffs and hem.",
-        "sizes": ["S", "M", "L", "XL"],
-        "is_new_drop": True,
-        "stock": 340,
-    },
-    {
-        "slug": "lung-punch-tee",
-        "title": "LUNG PUNCH — TEE",
-        "artist": "DEZ",
-        "category": "apparel",
-        "price": 42.00,
-        "image": LUNG_PUNCH_MERCH,
-        "images": [LUNG_PUNCH_MERCH],
-        "description": "Black premium cotton tee. Centred Lung Punch graphic with 'Beats By Dez' inset on the arm. 100% combed ringspun cotton, 6.5oz weight.",
-        "sizes": ["S", "M", "L", "XL", "XXL"],
-        "is_new_drop": True,
-        "stock": 420,
-    },
     {
         "slug": "graffiti-hoodie",
         "title": "BEATSBYDEZ — GRAFFITI HOODIE",
@@ -260,20 +223,8 @@ SEED_INSTRUMENTALS = [
         "audio_url": "",
         "cover": "/dez-logo.png",
         "is_free": False,
-        "price": 34.99,
-        "preview_seconds": 30,
-        "coming_soon": True,
-    },
-    {
-        "slug": "lung-punch-instrumental",
-        "title": "LUNG PUNCH (INSTR)",
-        "mood": "BOOM BAP",
-        "bpm": 92,
-        "key": "C Minor",
-        "audio_url": "",
-        "cover": "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/t4dqvb7t_Gemini_Generated_Image_%20%281%29-EDIT.jpg",
-        "is_free": False,
-        "price": 49.99,
+        "price": LEASE_PRICE,
+        "license": LEASE_LABEL,
         "preview_seconds": 30,
         "coming_soon": True,
     },
@@ -286,7 +237,8 @@ SEED_INSTRUMENTALS = [
         "audio_url": "",
         "cover": "/dez-logo.png",
         "is_free": False,
-        "price": 29.99,
+        "price": LEASE_PRICE,
+        "license": LEASE_LABEL,
         "preview_seconds": 30,
         "coming_soon": True,
     },
@@ -299,7 +251,8 @@ SEED_INSTRUMENTALS = [
         "audio_url": "",
         "cover": "/dez-logo.png",
         "is_free": False,
-        "price": 24.99,
+        "price": LEASE_PRICE,
+        "license": LEASE_LABEL,
         "preview_seconds": 30,
         "coming_soon": True,
     },
@@ -372,11 +325,13 @@ async def seed_database():
         artist = Artist(**a)
         await db.artists.insert_one(artist.model_dump())
     for p in SEED_PRODUCTS:
-        product = Product(**p)
+        product = Product(id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"product:{p['slug']}")), **p)
         await db.products.insert_one(product.model_dump())
     for inst in SEED_INSTRUMENTALS:
-        instrumental = Instrumental(**inst)
+        instrumental = Instrumental(id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"beat:{inst['slug']}")), **inst)
         await db.instrumentals.insert_one(instrumental.model_dump())
+    await seed_admin(db)
+    await db.newsletter.create_index("email", unique=True)
 
 
 # ---------- Routes ----------
@@ -425,24 +380,34 @@ async def create_order(payload: OrderCreate):
 
     enriched_items = []
     subtotal = 0.0
+    physical_subtotal = 0.0
     for item in payload.items:
+        if item.quantity < 1:
+            raise HTTPException(status_code=400, detail="Quantity must be at least 1")
         prod = await db.products.find_one({"id": item.product_id}, {"_id": 0})
-        if not prod:
-            raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
-        line_total = prod["price"] * item.quantity
+        if prod:
+            line = {"title": prod["title"], "artist": prod["artist"], "image": prod["image"],
+                    "price": prod["price"], "size": item.size, "kind": "merch"}
+        else:
+            beat = await db.instrumentals.find_one({"id": item.product_id}, {"_id": 0})
+            if not beat:
+                raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
+            if beat.get("is_free") or beat.get("coming_soon"):
+                raise HTTPException(status_code=400, detail=f"{beat['title']} is not for sale yet")
+            line = {"title": beat["title"], "artist": "DEZ", "image": beat["cover"],
+                    "price": beat["price"], "size": beat.get("license") or LEASE_LABEL, "kind": "beat"}
+        line_total = line["price"] * item.quantity
         subtotal += line_total
+        if line["kind"] == "merch":
+            physical_subtotal += line_total
         enriched_items.append({
-            "product_id": prod["id"],
-            "title": prod["title"],
-            "artist": prod["artist"],
-            "price": prod["price"],
-            "image": prod["image"],
+            "product_id": item.product_id,
+            **line,
             "quantity": item.quantity,
-            "size": item.size,
             "line_total": round(line_total, 2),
         })
 
-    shipping = 0.0 if subtotal >= 100 else 9.99
+    shipping = 0.0 if physical_subtotal == 0 or physical_subtotal >= 100 else 9.99
     total = round(subtotal + shipping, 2)
     order_number = "BBD-" + str(uuid.uuid4())[:8].upper()
 
@@ -471,14 +436,85 @@ async def get_order(order_number: str):
     return Order(**doc)
 
 
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for", "")
+    return fwd.split(",")[0].strip() if fwd else (request.client.host if request.client else "unknown")
+
+
 @api_router.post("/newsletter")
-async def newsletter_signup(payload: NewsletterSignup):
-    await db.newsletter.update_one(
-        {"email": payload.email},
-        {"$set": {"email": payload.email, "subscribed_at": datetime.now(timezone.utc).isoformat()}},
-        upsert=True,
-    )
-    return {"success": True, "message": "Subscribed"}
+async def newsletter_signup(payload: NewsletterSignup, request: Request):
+    email = payload.email.lower()
+    if await db.newsletter.find_one({"email": email}):
+        return {"success": True, "already_subscribed": True, "message": "You're already on the list"}
+    ip = _client_ip(request)
+    hour_ago = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
+    if await db.newsletter.count_documents({"ip": ip, "subscribed_at": {"$gte": hour_ago}}) >= 5:
+        raise HTTPException(status_code=429, detail="Too many signups. Try again later.")
+    await db.newsletter.insert_one({
+        "email": email,
+        "ip": ip,
+        "subscribed_at": datetime.now(timezone.utc).isoformat(),
+        "welcome_sent": False,
+    })
+    try:
+        await send_email(to=email, subject="Welcome to my world — Beats by Dez", html=welcome_email_html())
+        await db.newsletter.update_one({"email": email}, {"$set": {"welcome_sent": True}})
+        sent = True
+    except Exception as e:
+        logger.error(f"Welcome email failed for signup: {e}")
+        sent = False
+    return {"success": True, "already_subscribed": False, "welcome_sent": sent, "message": "Subscribed"}
+
+
+# ---------- Admin ----------
+@api_router.post("/auth/login")
+async def admin_login(payload: LoginRequest, request: Request, response: Response):
+    email = payload.email.lower()
+    identifier = f"{_client_ip(request)}:{email}"
+    await check_lockout(db, identifier)
+    user = await db.users.find_one({"email": email})
+    if not user or not verify_password(payload.password, user["password_hash"]):
+        await record_failure(db, identifier)
+        raise HTTPException(status_code=401, detail="Wrong email or password")
+    await db.login_attempts.delete_one({"identifier": identifier})
+    set_auth_cookie(response, create_access_token(str(user["_id"]), email))
+    return {"id": str(user["_id"]), "email": email, "name": user.get("name"), "role": user["role"]}
+
+
+@api_router.post("/auth/logout")
+async def admin_logout(response: Response):
+    response.delete_cookie("access_token", path="/")
+    return {"success": True}
+
+
+@api_router.get("/auth/me")
+async def admin_me(request: Request):
+    return await get_admin(request, db)
+
+
+async def _subscribers():
+    return await db.newsletter.find(
+        {}, {"_id": 0, "email": 1, "subscribed_at": 1, "welcome_sent": 1}
+    ).sort("subscribed_at", -1).to_list(10000)
+
+
+@api_router.get("/admin/subscribers")
+async def list_subscribers(request: Request):
+    await get_admin(request, db)
+    subs = await _subscribers()
+    return {"count": len(subs), "subscribers": subs}
+
+
+@api_router.get("/admin/subscribers.csv")
+async def export_subscribers(request: Request):
+    await get_admin(request, db)
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["email", "subscribed_at", "welcome_sent"])
+    for s_ in await _subscribers():
+        writer.writerow([s_["email"], s_.get("subscribed_at", ""), s_.get("welcome_sent", False)])
+    return PlainTextResponse(buf.getvalue(), media_type="text/csv",
+                             headers={"Content-Disposition": "attachment; filename=beatsbydez-subscribers.csv"})
 
 
 @api_router.get("/instrumentals", response_model=List[Instrumental])
@@ -510,9 +546,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 @app.on_event("shutdown")

@@ -6,13 +6,13 @@ import { ProductCard } from "../components/ProductCard";
 import { Marquee } from "../components/Marquee";
 import { Countdown } from "../components/Countdown";
 import { Boombox } from "../components/Boombox";
+import { WelcomeSection } from "../components/WelcomeSection";
 
 const DEZ_LOGO = "/dez-logo.png";
 const DEZ_STUDIO =
   "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg";
 
 const MARQUEE_TOP = ["BEATSBYDEZ", "NEW DROPS", "LIMITED EDITION", "WORLDWIDE SHIPPING"];
-const MARQUEE_BOTTOM = ["DEZ", "BEATSBYDEZ", "LUNG PUNCH", "BEATS BY DEZ"];
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -23,7 +23,6 @@ export default function Home() {
 
   const newDrops = products.filter((p) => p.is_new_drop).slice(0, 4);
   const limited = products.filter((p) => p.is_limited).slice(0, 3);
-  const lungPunch = products.find((p) => p.slug === "lung-punch-vinyl");
 
   return (
     <div data-testid="home-page">
@@ -94,56 +93,10 @@ export default function Home() {
 
       <Marquee items={MARQUEE_TOP} />
 
+      <WelcomeSection />
+
       {/* THE BOOMBOX */}
       <Boombox />
-
-      {/* LUNG PUNCH — featured drop with countdown */}
-      {lungPunch && (
-        <section className="relative bg-black border-b border-white/10 overflow-hidden">
-          <div className="absolute -top-32 -left-32 w-[40vw] h-[40vw] rounded-full bg-[#ff3300] opacity-[0.10] blur-3xl" />
-          <div className="grid lg:grid-cols-2 items-center gap-0 relative">
-            <div className="relative aspect-square lg:aspect-auto lg:h-[640px] bg-[#0a0a0a] flex items-center justify-center p-10 border-r border-white/10">
-              <img
-                src={lungPunch.image}
-                alt={lungPunch.title}
-                className="w-full max-w-[520px] object-contain drop-shadow-[0_0_60px_rgba(255,51,0,0.25)]"
-              />
-            </div>
-            <div className="p-8 md:p-16 flex flex-col justify-center">
-              <p className="text-xs tracking-[0.3em] uppercase text-[#ff3300] font-bold">
-                ▸ THE NEW PROJECT
-              </p>
-              <h2 className="font-heading text-6xl md:text-8xl uppercase tracking-tighter leading-[0.85] mt-3">
-                LUNG<br /><span className="text-[#dfff00]">PUNCH.</span>
-              </h2>
-              <p className="text-white/70 text-base mt-6 max-w-md">
-                Twelve tracks of pure smoke and bass. Red-and-black splatter vinyl, numbered
-                jacket, signed by Dez. Once they're gone, they're gone.
-              </p>
-
-              <div className="mt-8 border border-white/10 bg-[#0a0a0a] p-5">
-                <p className="text-[10px] tracking-[0.25em] uppercase font-bold text-white/50 mb-3">
-                  Drop closes in
-                </p>
-                <Countdown endsAt={lungPunch.drop_ends_at} testid="home-lungpunch-countdown" />
-              </div>
-
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Link
-                  to={`/product/${lungPunch.slug}`}
-                  data-testid="home-lungpunch-shop-button"
-                  className="btn-brutal inline-flex items-center justify-center gap-3 bg-[#ff3300] text-white px-7 py-3 text-xs uppercase tracking-[0.2em] font-bold hover:bg-white hover:text-black"
-                >
-                  Cop The Vinyl <ArrowRight className="w-4 h-4" />
-                </Link>
-                <span className="inline-flex items-center justify-center px-7 py-3 text-xs uppercase tracking-[0.2em] font-bold text-white/60 border border-white/10">
-                  {lungPunch.sold_count}/{lungPunch.total_supply} sold
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* NEW DROPS */}
       <section className="px-4 md:px-8 lg:px-12 py-16 md:py-24">
@@ -232,7 +185,7 @@ export default function Home() {
       </section>
 
       <Marquee
-        items={["DEZ", "BEATSBYDEZ", "LUNG PUNCH", "BEATS BY DEZ"]}
+        items={["DEZ", "BEATSBYDEZ", "FREE BEATS", "BEATS BY DEZ"]}
         accent
       />
 

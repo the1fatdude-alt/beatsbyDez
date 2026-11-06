@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Instagram, Twitter, Youtube } from "lucide-react";
-import { subscribeNewsletter } from "../lib/api";
+import { subscribeNewsletter, formatApiError } from "../lib/api";
+import { SOCIALS } from "../lib/socials";
 import { toast } from "sonner";
 
 export const Footer = () => {
@@ -12,11 +12,11 @@ export const Footer = () => {
     if (!email) return;
     setLoading(true);
     try {
-      await subscribeNewsletter(email);
-      toast.success("You're on the list.");
+      const res = await subscribeNewsletter(email);
+      toast.success(res.already_subscribed ? "You're already on the list." : "You're on the list. Check your inbox.");
       setEmail("");
-    } catch {
-      toast.error("Could not subscribe. Try again.");
+    } catch (err) {
+      toast.error(formatApiError(err));
     } finally {
       setLoading(false);
     }
@@ -66,15 +66,12 @@ export const Footer = () => {
         <div>
           <h4 className="text-xs tracking-[0.2em] uppercase font-bold mb-4">Follow</h4>
           <div className="flex gap-4">
-            <a data-testid="social-instagram" href="#" className="border border-white/20 p-3 hover:border-[#ff3300] hover:text-[#ff3300] transition-colors">
-              <Instagram className="w-4 h-4" />
-            </a>
-            <a data-testid="social-twitter" href="#" className="border border-white/20 p-3 hover:border-[#ff3300] hover:text-[#ff3300] transition-colors">
-              <Twitter className="w-4 h-4" />
-            </a>
-            <a data-testid="social-youtube" href="#" className="border border-white/20 p-3 hover:border-[#ff3300] hover:text-[#ff3300] transition-colors">
-              <Youtube className="w-4 h-4" />
-            </a>
+            {SOCIALS.map(({ key, label, href, Icon }) => (
+              <a key={key} data-testid={`footer-social-${key}`} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+                className="border border-white/20 p-3 hover:border-[#ff3300] hover:text-[#ff3300] transition-colors">
+                <Icon className="w-4 h-4" />
+              </a>
+            ))}
           </div>
           <p className="text-white/40 text-xs mt-8">
             © {new Date().getFullYear()} BeatsByDez. All rights reserved.

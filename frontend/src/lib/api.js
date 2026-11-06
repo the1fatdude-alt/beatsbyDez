@@ -34,3 +34,35 @@ export const subscribeNewsletter = async (email) => {
   const { data } = await api.post("/newsletter", { email });
   return data;
 };
+
+const withCreds = { withCredentials: true };
+
+export const adminLogin = async (email, password) => {
+  const { data } = await api.post("/auth/login", { email, password }, withCreds);
+  return data;
+};
+
+export const adminLogout = () => api.post("/auth/logout", {}, withCreds);
+
+export const adminMe = async () => {
+  const { data } = await api.get("/auth/me", withCreds);
+  return data;
+};
+
+export const fetchSubscribers = async () => {
+  const { data } = await api.get("/admin/subscribers", withCreds);
+  return data;
+};
+
+export const downloadSubscribersCsv = async () => {
+  const { data } = await api.get("/admin/subscribers.csv", { ...withCreds, responseType: "blob" });
+  return data;
+};
+
+export const formatApiError = (err) => {
+  const detail = err?.response?.data?.detail;
+  if (!detail) return "Something went wrong. Please try again.";
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) return detail.map((e) => e?.msg || "").filter(Boolean).join(" ");
+  return String(detail);
+};

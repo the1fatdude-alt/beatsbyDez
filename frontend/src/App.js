@@ -12,6 +12,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import ArtistDetail from "./pages/ArtistDetail";
+import Admin from "./pages/Admin";
 
 const TOAST_OPTIONS = {
   style: {
@@ -39,6 +40,7 @@ function App() {
               <Route path="/order/:orderNumber" element={<OrderSuccess />} />
               <Route path="/artists" element={<ArtistDetail />} />
               <Route path="/artists/:slug" element={<ArtistDetail />} />
+              <Route path="/admin" element={<Admin />} />
             </Routes>
           </main>
           <Footer />

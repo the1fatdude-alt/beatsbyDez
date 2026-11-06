@@ -39,6 +39,7 @@ export const CartProvider = ({ children }) => {
           artist: product.artist,
           price: product.price,
           image: product.image,
+          kind: product.kind || "merch",
           size,
           quantity,
         },
@@ -73,14 +74,18 @@ export const CartProvider = ({ children }) => {
     () => items.reduce((s, it) => s + it.price * it.quantity, 0),
     [items]
   );
+  const merchSubtotal = useMemo(
+    () => items.filter((it) => it.kind !== "beat").reduce((s, it) => s + it.price * it.quantity, 0),
+    [items]
+  );
   const count = useMemo(
     () => items.reduce((s, it) => s + it.quantity, 0),
     [items]
   );
 
   const value = useMemo(
-    () => ({ items, addItem, updateQuantity, removeItem, clearCart, subtotal, count, open, setOpen }),
-    [items, subtotal, count, open]
+    () => ({ items, addItem, updateQuantity, removeItem, clearCart, subtotal, merchSubtotal, count, open, setOpen }),
+    [items, subtotal, merchSubtotal, count, open]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

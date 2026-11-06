@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Play, Pause, Square, SkipBack, SkipForward, Download, ShoppingBag, Circle } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
+import { useCart } from "../context/CartContext";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const BOOMBOX_IMG =
@@ -73,6 +74,13 @@ export const Boombox = () => {
   const [volume, setVolume] = useState(0.75);
   const [powered, setPowered] = useState(true);
   const audioRef = useRef(null);
+  const { addItem } = useCart();
+
+  const buyLease = (t) =>
+    addItem(
+      { id: t.id, slug: t.slug, title: t.title, artist: "DEZ", price: t.price, image: t.cover, kind: "beat" },
+      { size: t.license || "Non-Exclusive Lease" }
+    );
 
   useEffect(() => {
     axios
@@ -463,9 +471,9 @@ export const Boombox = () => {
               <span className="font-heading text-2xl md:text-3xl text-[#ff3300] leading-none w-7 shrink-0">5</span>
               <p>
                 <span className="font-heading uppercase tracking-tight text-white text-base md:text-lg block mb-0.5">
-                  Coming Soon Rows
+                  Lease a Beat
                 </span>
-                Paid beats that haven't dropped yet — greyed out and locked. Check back as Dez releases them.
+                Paid beats are <span className="text-white font-bold">$29.99 non-exclusive leases</span> — preview 30 sec, then hit <span className="text-white font-bold">ADD TO BAG</span>. Exclusive rights are negotiable — join the list and reach out. Greyed-out rows are coming soon.
               </p>
             </li>
             <li className="flex gap-3">
@@ -491,6 +499,7 @@ export const Boombox = () => {
               recording={recordingSlug === t.slug}
               onSelect={() => handleSelect(i)}
               onDownload={() => handleDownload(t)}
+              onBuy={() => buyLease(t)}
             />
           ))}
         </div>
@@ -501,7 +510,7 @@ export const Boombox = () => {
   );
 };
 
-const TrackRow = ({ track, active, isPlaying, recording, onSelect, onDownload }) => (
+const TrackRow = ({ track, active, isPlaying, recording, onSelect, onDownload, onBuy }) => (
   <div
     data-testid={`track-row-${track.slug}`}
     className={`flex items-center gap-3 p-3 border ${
@@ -531,6 +540,11 @@ const TrackRow = ({ track, active, isPlaying, recording, onSelect, onDownload })
       <p className="text-[10px] tracking-[0.2em] uppercase text-white/50 font-bold mt-1">
         {track.mood} · BPM {track.bpm} · {track.key}
       </p>
+      {!track.is_free && (
+        <p data-testid={`track-license-${track.slug}`} className="text-[10px] tracking-[0.15em] uppercase text-[#dfff00]/80 mt-1">
+          {track.license || "Non-Exclusive Lease"} · Exclusive negotiable
+        </p>
+      )}
     </div>
     {track.coming_soon ? (
       <span
@@ -555,14 +569,14 @@ const TrackRow = ({ track, active, isPlaying, recording, onSelect, onDownload })
       </button>
     ) : (
       <div className="flex items-center gap-2">
-        <span className="font-heading text-lg">${track.price}</span>
+        <span data-testid={`track-price-${track.slug}`} className="font-heading text-lg">${track.price.toFixed(2)}</span>
         <button
           type="button"
-          onClick={() => window.location.assign("/shop")}
+          onClick={onBuy}
           data-testid={`track-buy-${track.slug}`}
           className="flex items-center gap-2 px-3 py-2 text-[10px] tracking-[0.2em] uppercase font-bold border border-white/20 hover:border-[#ff3300] hover:text-[#ff3300]"
         >
-          <ShoppingBag className="w-3.5 h-3.5" /> Buy
+          <ShoppingBag className="w-3.5 h-3.5" /> Add to Bag
         </button>
       </div>
     )}
