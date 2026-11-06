@@ -9,9 +9,6 @@ import { Boombox } from "../components/Boombox";
 import { WelcomeSection } from "../components/WelcomeSection";
 
 const DEZ_LOGO = "/dez-logo.png";
-const DEZ_STUDIO =
-  "https://customer-assets.emergentagent.com/job_music-commerce-hub/artifacts/m0zgehx2_7bc86a47-de2b-4392-b5a0-e74e5d409500.jpg";
-
 const MARQUEE_TOP = ["BEATSBYDEZ", "NEW DROPS", "LIMITED EDITION", "WORLDWIDE SHIPPING"];
 
 export default function Home() {
@@ -189,38 +186,6 @@ export default function Home() {
         accent
       />
 
-      {/* FROM THE STUDIO */}
-      <section className="bg-[#0a0a0a] border-y border-white/10">
-        <div className="grid lg:grid-cols-2 items-stretch">
-          <div className="relative aspect-[4/3] lg:aspect-auto overflow-hidden">
-            <img
-              src={DEZ_STUDIO}
-              alt="Dez's studio"
-              data-testid="home-studio-photo"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/40" />
-          </div>
-          <div className="p-8 md:p-16 flex flex-col justify-center">
-            <p className="text-xs tracking-[0.3em] uppercase text-[#dfff00] font-bold">/ FROM THE STUDIO</p>
-            <h2 className="font-heading text-5xl md:text-7xl uppercase tracking-tight leading-none mt-3">
-              WHERE THE<br /><span className="text-white/40">WORK HAPPENS.</span>
-            </h2>
-            <p className="text-white/70 text-base mt-6 max-w-md">
-              Two KRK monitors. A worn-in MIDI controller. One flickering light. This is the
-              room every drop on this site was born in. No labels, no committees — just Dez
-              and the wall.
-            </p>
-            <Link
-              to="/artists/dez"
-              data-testid="home-meet-dez-link"
-              className="btn-brutal mt-8 inline-flex items-center gap-3 w-fit border border-white/30 px-7 py-3 text-xs uppercase tracking-[0.2em] font-bold hover:border-[#ff3300] hover:text-[#ff3300]"
-            >
-              Meet The Producer <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
