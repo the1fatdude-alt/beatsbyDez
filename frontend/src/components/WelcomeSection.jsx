@@ -22,7 +22,9 @@ const SignupForm = () => {
       const res = await subscribeNewsletter(email);
       setDone(true);
       setEmail("");
-      toast.success(res.already_subscribed ? "You're already on the list." : "Welcome in. Check your inbox.");
+      toast.success(
+        res.already_subscribed ? "You're already on the list." : res.welcome_sent ? "Welcome in. Check your inbox." : "Welcome in. You're on the list."
+      );
     } catch (err) {
       toast.error(formatApiError(err));
     } finally {
@@ -84,7 +86,7 @@ export const WelcomeSection = () => (
           {PERKS.map(({ Icon, title, text }) => (
             <li key={title} className="flex items-center gap-4 border-b border-white/10 py-4">
               <Icon className="w-5 h-5 text-[#dfff00] shrink-0" />
-              <span className="font-heading text-xl uppercase tracking-tight w-36">{title}</span>
+              <span className="font-heading text-xl uppercase tracking-tight w-36 shrink-0">{title}</span>
               <span className="text-sm text-white/60">{text}</span>
             </li>
           ))}

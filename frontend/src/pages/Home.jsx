@@ -126,8 +126,8 @@ export default function Home() {
 
       {/* DEZ EDITORIAL BAND */}
       <section className="relative bg-[#0a0a0a] border-y border-white/10">
-        <div className="grid lg:grid-cols-2 items-stretch">
-          <div className="relative aspect-[4/3] lg:aspect-auto bg-black flex items-center justify-center p-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch">
+          <div className="relative aspect-[4/3] lg:aspect-auto bg-black flex items-center justify-center p-10 min-w-0">
             <div className="w-full max-w-[520px] aspect-[16/10]">
               <img
                 src={DEZ_LOGO}

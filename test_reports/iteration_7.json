@@ -1,0 +1,45 @@
+{
+  "summary": "Iteration 7: Tested Welcome section + newsletter (real Resend email), admin auth/subscribers/CSV, brute-force lockout, Non-Exclusive Lease beat purchase (obsidian-bounce temporarily set live), deterministic ids across restart, and regression (free download, shop, PDP, merch cart, checkout, order success). New suite 14/14 pass. All requested UI flows pass with zero page errors. Home has no 'LUNG PUNCH' or 'Sony' text. Only minor issues found.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/newsletter", "issue": "Resend blocks @example.com (422 undeliverable_recipient). Signup still saves with welcome_sent=false, which is the expected fallback. Nothing retries a failed welcome email, and the UI still shows 'Welcome in. Check your inbox.' even when welcome_sent is false."},
+      {"endpoint": "POST /api/newsletter, POST /api/auth/login", "issue": "The IP rate limit and lockout key use the first X-Forwarded-For value, which a client can set to anything. An attacker can rotate the header to get past the 5 signups/hour limit and the brute-force lockout."},
+      {"endpoint": "CORS middleware", "issue": "CORS_ORIGINS='*' is used together with allow_credentials=True. The playbook asks for explicit origins."},
+      {"endpoint": "startup seed_database", "issue": "Every restart runs delete_many on products and instrumentals, so download counters and any manual edits (for example a coming_soon flag or a real audio_url) are lost. Ids are now stable, but the data is not."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Home DEZ EDITORIAL BAND (Home.jsx ~line 129)", "issue": "Horizontal overflow on mobile (390px): document scrollWidth is 404. The grid has no grid-cols-1 on mobile, so the column takes the content's minimum width.", "selector": "section .grid.lg\\:grid-cols-2 > div.aspect-[4/3]", "priority": "LOW"}
+    ],
+    "integration_issues": [
+      {"flow": "Order success", "issue": "The page says 'We've sent a confirmation to <email>', but no order email is sent. Payment is a mocked demo.", "affected_selectors": ["[data-testid='order-success-page']"]},
+      {"flow": "Cart with beat", "issue": "Lease items show 'Size: Non-Exclusive Lease' in the cart sheet. They also have +/- quantity controls, so a buyer can lease the same beat twice. Consider a 'License:' label and a fixed quantity of 1 for beats.", "affected_selectors": ["[data-testid^='cart-item-']", "[data-testid^='cart-increase-']"]}
+    ],
+    "design_issues": [
+      {"screen": "Welcome section perks (mobile)", "issues": ["Perk descriptions start at different x positions (199/209/204px) because the w-36 title span shrinks. Add shrink-0 to keep them aligned."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_welcome_admin_lease.py", "/app/test_reports/pytest/pytest_iter7.xml"],
+  "action_items": [
+    "Fill /app/memory/test_credentials.md with the admin credentials (the file is currently empty)",
+    "Update stale regression tests: test_boombox.py (expects 9 instrumentals and lung-punch-instrumental) and test_dez_store.py (expects 8 products and lung-punch products). 7 tests fail only because the Lung Punch collection was archived.",
+    "Optional: show a different toast when welcome_sent is false; set explicit CORS origins; do not trust a client-supplied X-Forwarded-For for rate limiting",
+    "Optional: fix mobile horizontal overflow in the Home editorial band; label beats as 'License' in the cart and stop quantity above 1 for leases; reword the order-success 'sent a confirmation' text"
+  ],
+  "critical_code_review_comments": [
+    "auth.py: bcrypt $2b$ hash OK. httpOnly+Secure+SameSite=lax cookie OK. Lockout after 5 tries OK. seed_admin is idempotent (hash unchanged after restart).",
+    "server.py: the startup force-reseed wipes downloads and Mongo edits on every restart. Before launch, change it to upsert by slug.",
+    "Newsletter duplicate check runs before the rate limit, which is good. The admin subscribers projection excludes _id and ip, which is good.",
+    "Order pricing is computed on the server from the DB (the client price is ignored), which is good. Coming-soon and free beats are rejected with 400."
+  ],
+  "updated_files": ["/app/backend/tests/test_welcome_admin_lease.py"],
+  "success_rate": {"backend": "100% (14/14 new). Legacy suites: 26/33, all 7 failures are stale expectations", "frontend": "100% of requested flows"},
+  "test_credentials": "admin@beatsbydez.com / mZ0KawviisO8 (from the review request and backend .env). /app/memory/test_credentials.md is EMPTY.",
+  "seed_data_creation": "Temporarily set obsidian-bounce live in Mongo. The backend restart reset it (verified coming_soon=true). Deleted all 4 test newsletter docs (delivered@resend.dev, test_news@example.com, 2 qa_*@example.com): db.newsletter is now 0. db.login_attempts cleared. Deleted the 4 TEST_QA orders I created.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run tests/test_welcome_admin_lease.py with REACT_APP_BACKEND_URL exported and -p no:xdist. TestLeaseOrders needs obsidian-bounce set live in Mongo first, and the backend restarted afterwards. The newsletter limit is 5 new signups per IP per hour, so keep test signups to a minimum. Only delivered@resend.dev actually receives email; example.com gets welcome_sent=false. Clean up db.newsletter and db.login_attempts afterwards.",
+  "rca of the issue": "No blocking bugs. The legacy test failures come from the Lung Punch archive (catalog reduced to 4 products and 8 beats)."
+}

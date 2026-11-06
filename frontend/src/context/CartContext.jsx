@@ -23,6 +23,7 @@ export const CartProvider = ({ children }) => {
     setItems((prev) => {
       const key = `${product.id}__${size || ""}`;
       const existing = prev.find((it) => `${it.product_id}__${it.size || ""}` === key);
+      if (existing && product.kind === "beat") return prev;
       if (existing) {
         return prev.map((it) =>
           `${it.product_id}__${it.size || ""}` === key

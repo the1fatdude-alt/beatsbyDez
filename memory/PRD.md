@@ -1,44 +1,27 @@
-# Sony Music HipHop × BeatsByDez — Product Requirements
+# Beats by Dez — Product Requirements
 
 ## Original Problem Statement
-> "Build an e-commerce site for Sony Music — hip hop style." Clarified: **The only person featured on this site is The Producer, Dez.**
+Started as "e-commerce site for Sony Music — hip hop style", then pivoted fully to **Beats by Dez**, the independent music + clothing brand of producer Dez. Absolutely no Sony Music branding or stock photos.
 
 ## Architecture
-- **Backend**: FastAPI + Motor (MongoDB), auto-seeded on startup, all routes prefixed `/api`.
-- **Frontend**: React + React Router + Tailwind + Shadcn UI (Sheet for cart). Cart state in `localStorage`.
-- **Design**: Dark brutalist Swiss / streetwear. `#FF3300` signal red + `#DFFF00` neon yellow accents. Bebas Neue + Outfit. Grain overlay, glowing radial spotlights, marquee tickers.
+- Backend: FastAPI + Motor (MongoDB), all routes under `/api`. Catalog seeded by slug-upsert on startup (stable uuid5 ids; download counters persist).
+- `backend/emailer.py`: Emergent managed email (Resend) with guardrail gate; welcome email template.
+- `backend/auth.py`: single-admin JWT auth (httpOnly cookie), bcrypt, lockout after 5 failures.
+- Frontend: React + Router + Tailwind + Shadcn. Cart in localStorage. Dark brutalist streetwear design (#FF3300 / #DFFF00, Bebas Neue + Outfit).
 
-## User Personas
-- **The Fan / Beat Connoisseur** — wants vinyl, CDs, and merch directly from Dez. Browses by category, expects fast checkout.
+## Implemented
+- Store: Home, Shop, Product Detail, Cart Sheet, Checkout (DEMO payment — MOCKED), Order Success, Producer bio page.
+- Interactive graffiti Boombox (free downloads, 30-sec previews on paid beats), ambient background music, hype bars/countdowns.
+- Lung Punch collection archived (logo kept on cap image).
+- 2026-06: "Welcome to My World" mailing-list section on Home + footer signup; real welcome email sent on first signup; social links (placeholder URLs in `frontend/src/lib/socials.js`).
+- 2026-06: Private `/admin` page (password login) listing signups + CSV download.
+- 2026-06: Paid beats = $29.99 Non-Exclusive Lease, add to bag (qty 1, no shipping for digital-only orders); "Exclusive negotiable" note.
 
-## Core Requirements (Static)
-- Single-producer storefront under the Sony Music HipHop umbrella.
-- Catalog of vinyl, CDs, apparel, accessories — all by DEZ.
-- Guest checkout, no auth, mocked payment.
-- Cart persists across sessions.
-- Producer (Dez) bio page.
-- Newsletter capture.
-
-## Implemented (2026-02)
-- 8 seeded products, 1 artist (Dez).
-- Endpoints: `/api/products`, `/api/products/{slug}`, `/api/artists`, `/api/artists/{slug}`, `/api/orders`, `/api/orders/{order_number}`, `/api/newsletter`.
-- Pages: Home, Shop (category filters), Product Detail (size + qty + add-to-cart), Cart Sheet, Checkout, Order Success, Producer page.
-- Hero featuring the BeatsByDez graffiti artwork with neon radial glows.
-- Marquee tickers, brutalist grid card layouts, sticky glass nav, footer newsletter.
-- Free shipping ≥ $100, else $9.99.
-- E2E tested: 14/14 backend + full frontend flow.
-
-## Backlog (P0/P1/P2)
-- **P1** Migrate FastAPI startup/shutdown to `lifespan` handler.
-- **P1** Stripe live checkout (replace mock).
-- **P2** Product image gallery (multiple shots per item).
-- **P2** Order history (requires auth — JWT or Emergent Google).
-- **P2** Search.
-- **P2** Admin dashboard for Dez to manage drops.
-- **P2** Email confirmation on order (Resend/SendGrid).
-- **P2** Pre-order / countdown for upcoming drops.
-
-## Next Tasks
-1. Decide on payments (Stripe live vs keep mock).
-2. Add product image galleries.
-3. Add auth + order history if user wants account flow.
+## Backlog
+- P0 Dez uploads paid MP3s → replace the 3 coming-soon placeholders in `SEED_INSTRUMENTALS` (server.py), set audio_url, coming_soon False.
+- P0 Real social profile URLs.
+- P1 Real payments (Stripe) — checkout is still demo.
+- P1 Deliver purchased beat files after payment (download link / email); protect paid full-length audio (serve preview clips only).
+- P1 Order confirmation email.
+- P2 Admin: manage drops/tracks without code; send newsletter broadcasts (must stay opt-in).
+- P2 Multi-site sales/distribution (parked).

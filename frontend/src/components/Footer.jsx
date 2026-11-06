@@ -13,7 +13,7 @@ export const Footer = () => {
     setLoading(true);
     try {
       const res = await subscribeNewsletter(email);
-      toast.success(res.already_subscribed ? "You're already on the list." : "You're on the list. Check your inbox.");
+      toast.success(res.already_subscribed ? "You're already on the list." : res.welcome_sent ? "You're on the list. Check your inbox." : "You're on the list.");
       setEmail("");
     } catch (err) {
       toast.error(formatApiError(err));

@@ -49,8 +49,9 @@ export const CartSheet = () => {
                   <div className="flex-1">
                     <p className="text-[10px] tracking-[0.2em] uppercase text-white/50 font-bold">{it.artist}</p>
                     <p className="font-heading uppercase tracking-tight text-lg leading-none mt-1">{it.title}</p>
-                    {it.size && <p className="text-xs text-white/60 mt-1">Size: {it.size}</p>}
+                    {it.size && <p className="text-xs text-white/60 mt-1">{it.kind === "beat" ? "License" : "Size"}: {it.size}</p>}
                     <div className="flex items-center justify-between mt-3">
+                      {it.kind === "beat" ? <span className="text-[10px] tracking-[0.2em] uppercase text-white/40">Digital · Qty 1</span> : (
                       <div className="flex items-center border border-white/20">
                         <button
                           onClick={() => updateQuantity(it.product_id, it.size, it.quantity - 1)}
@@ -68,6 +69,7 @@ export const CartSheet = () => {
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
+                      )}
                       <div className="flex items-center gap-3">
                         <span className="font-heading text-lg">${(it.price * it.quantity).toFixed(2)}</span>
                         <button

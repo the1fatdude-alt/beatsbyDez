@@ -317,19 +317,19 @@ SEED_INSTRUMENTALS = [
 
 @app.on_event("startup")
 async def seed_database():
-    # Force-refresh seed (single-artist site rebrand)
-    await db.products.delete_many({})
-    await db.artists.delete_many({})
-    await db.instrumentals.delete_many({})
-    for a in SEED_ARTISTS:
-        artist = Artist(**a)
-        await db.artists.insert_one(artist.model_dump())
-    for p in SEED_PRODUCTS:
-        product = Product(id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"product:{p['slug']}")), **p)
-        await db.products.insert_one(product.model_dump())
-    for inst in SEED_INSTRUMENTALS:
-        instrumental = Instrumental(id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"beat:{inst['slug']}")), **inst)
-        await db.instrumentals.insert_one(instrumental.model_dump())
+    # Upsert catalog by slug so ids and download counters survive restarts
+    seeds = [
+        (db.artists, Artist, "artist", SEED_ARTISTS, set()),
+        (db.products, Product, "product", SEED_PRODUCTS, set()),
+        (db.instrumentals, Instrumental, "beat", SEED_INSTRUMENTALS, {"downloads"}),
+    ]
+    for coll, model, prefix, items, keep in seeds:
+        slugs = [it["slug"] for it in items]
+        await coll.delete_many({"slug": {"$nin": slugs}})
+        for it in items:
+            doc = model(id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{prefix}:{it['slug']}")), **it).model_dump()
+            on_insert = {k: doc.pop(k) for k in keep | {"id"}}
+            await coll.update_one({"slug": it["slug"]}, {"$set": doc, "$setOnInsert": on_insert}, upsert=True)
     await seed_admin(db)
     await db.newsletter.create_index("email", unique=True)
 
@@ -470,7 +470,7 @@ async def newsletter_signup(payload: NewsletterSignup, request: Request):
 @api_router.post("/auth/login")
 async def admin_login(payload: LoginRequest, request: Request, response: Response):
     email = payload.email.lower()
-    identifier = f"{_client_ip(request)}:{email}"
+    identifier = f"login:{email}"
     await check_lockout(db, identifier)
     user = await db.users.find_one({"email": email})
     if not user or not verify_password(payload.password, user["password_hash"]):

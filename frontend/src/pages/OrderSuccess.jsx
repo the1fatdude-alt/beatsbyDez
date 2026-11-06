@@ -36,7 +36,7 @@ export default function OrderSuccess() {
           You're In.
         </h1>
         <p className="text-white/70 mt-4">
-          Thanks {order.customer_name}. We've sent a confirmation to{" "}
+          Thanks {order.customer_name}. Your order is confirmed — we'll reach you at{" "}
           <span className="text-white">{order.customer_email}</span>.
         </p>
 
