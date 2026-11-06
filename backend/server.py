@@ -120,8 +120,8 @@ class Instrumental(BaseModel):
     slug: str
     title: str
     mood: str
-    bpm: int
-    key: str
+    bpm: Optional[int] = None
+    key: Optional[str] = None
     audio_url: str
     cover: str
     is_free: bool = False
@@ -213,48 +213,50 @@ SEED_PRODUCTS = [
 
 
 SEED_INSTRUMENTALS = [
-    # FOR-SALE — coming soon (placeholders until real paid beats uploaded)
+    # FOR-SALE — non-exclusive leases
     {
-        "slug": "obsidian-bounce",
-        "title": "OBSIDIAN BOUNCE",
-        "mood": "TRAP",
-        "bpm": 142,
-        "key": "F# Minor",
-        "audio_url": "",
+        "slug": "biggie-smalls",
+        "title": "BIGGIE SMALLS",
+        "mood": "BOOM BAP / HIP HOP",
+        "audio_url": "https://customer-assets-agu9un31.emergentagent.net/job_music-commerce-hub/artifacts/7424fa5dc353bd4b_Biggie%20Smalls%20%20BoomBap%20HipHop%20Type.mp3",
         "cover": "/dez-logo.png",
         "is_free": False,
         "price": LEASE_PRICE,
         "license": LEASE_LABEL,
         "preview_seconds": 30,
-        "coming_soon": True,
     },
     {
-        "slug": "midnight-808s",
-        "title": "MIDNIGHT 808s",
-        "mood": "DRILL",
-        "bpm": 148,
-        "key": "G Minor",
-        "audio_url": "",
+        "slug": "def-eyes",
+        "title": "DEF EYES",
+        "mood": "HIP HOP",
+        "audio_url": "https://customer-assets-agu9un31.emergentagent.net/job_music-commerce-hub/artifacts/aa7366129965d334_Def%20eyes.mp3",
         "cover": "/dez-logo.png",
         "is_free": False,
         "price": LEASE_PRICE,
         "license": LEASE_LABEL,
         "preview_seconds": 30,
-        "coming_soon": True,
     },
     {
-        "slug": "spraycan-soul",
-        "title": "SPRAYCAN SOUL",
-        "mood": "LO-FI",
-        "bpm": 78,
-        "key": "A Minor",
-        "audio_url": "",
+        "slug": "sagnificant",
+        "title": "SAGNIFICANT",
+        "mood": "HIP HOP",
+        "audio_url": "https://customer-assets-agu9un31.emergentagent.net/job_music-commerce-hub/artifacts/adbcc41c9c068604_Sagnificant.mp3",
         "cover": "/dez-logo.png",
         "is_free": False,
         "price": LEASE_PRICE,
         "license": LEASE_LABEL,
         "preview_seconds": 30,
-        "coming_soon": True,
+    },
+    {
+        "slug": "smooth-kat",
+        "title": "SMOOTH KAT",
+        "mood": "HIP HOP",
+        "audio_url": "https://customer-assets-agu9un31.emergentagent.net/job_music-commerce-hub/artifacts/c2c4ece57a964b49_Smooth%20kat_Import.mp3",
+        "cover": "/dez-logo.png",
+        "is_free": False,
+        "price": LEASE_PRICE,
+        "license": LEASE_LABEL,
+        "preview_seconds": 30,
     },
     # FREE — Dez's real productions
     {

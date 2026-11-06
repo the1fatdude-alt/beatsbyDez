@@ -473,7 +473,7 @@ export const Boombox = () => {
                 <span className="font-heading uppercase tracking-tight text-white text-base md:text-lg block mb-0.5">
                   Lease a Beat
                 </span>
-                Paid beats are <span className="text-white font-bold">$29.99 non-exclusive leases</span> — preview 30 sec, then hit <span className="text-white font-bold">ADD TO BAG</span>. Exclusive rights are negotiable — join the list and reach out. Greyed-out rows are coming soon.
+                Paid beats are <span className="text-white font-bold">$29.99 non-exclusive leases</span> — preview 30 sec, then hit <span className="text-white font-bold">ADD TO BAG</span>. Exclusive rights are negotiable — join the list and reach out.
               </p>
             </li>
             <li className="flex gap-3">
@@ -538,7 +538,7 @@ const TrackRow = ({ track, active, isPlaying, recording, onSelect, onDownload, o
         {track.title}
       </p>
       <p className="text-[10px] tracking-[0.2em] uppercase text-white/50 font-bold mt-1">
-        {track.mood} · BPM {track.bpm} · {track.key}
+        {[track.mood, track.bpm && `BPM ${track.bpm}`, track.key].filter(Boolean).join(" · ")}
       </p>
       {!track.is_free && (
         <p data-testid={`track-license-${track.slug}`} className="text-[10px] tracking-[0.15em] uppercase text-[#dfff00]/80 mt-1">

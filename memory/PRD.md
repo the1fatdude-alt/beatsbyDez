@@ -18,7 +18,7 @@ Started as "e-commerce site for Sony Music — hip hop style", then pivoted full
 - 2026-06: Paid beats = $29.99 Non-Exclusive Lease, add to bag (qty 1, no shipping for digital-only orders); "Exclusive negotiable" note.
 
 ## Backlog
-- P0 Dez uploads paid MP3s → replace the 3 coming-soon placeholders in `SEED_INSTRUMENTALS` (server.py), set audio_url, coming_soon False.
+- DONE 2026-06: 4 paid leases live (Biggie Smalls, Def Eyes, Sagnificant, Smooth Kat); BPM/key optional and hidden when unknown.
 - P0 Real social profile URLs.
 - P1 Real payments (Stripe) — checkout is still demo.
 - P1 Deliver purchased beat files after payment (download link / email); protect paid full-length audio (serve preview clips only).
